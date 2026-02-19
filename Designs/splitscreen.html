@@ -1,635 +1,1010 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Split Screen | Cafe & Bar</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          cafe: { light: '#F5F5DC', accent: '#2D5A27', mid: '#e8e4d0' },
-          bar: { dark: '#0A1128', accent: '#D4AF37', mid: '#141c3a' },
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Split Screen | Cafe & Bar</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cafe: { light: '#F5F5DC', accent: '#2D5A27', mid: '#e8e4d0' },
+            bar: { dark: '#0A1128', accent: '#D4AF37', mid: '#141c3a' },
+          }
         }
       }
     }
-  }
-</script>
-<style>
-  body { overflow-x: hidden; margin: 0; font-family: 'Georgia', serif; }
+  </script>
+  <style>
+    body {
+      overflow-x: hidden;
+      margin: 0;
+      font-family: 'Georgia', serif;
+    }
 
-  /* Split screen */
-  .split-section { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); overflow: hidden; position: relative; }
-  .center-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 50; pointer-events: none; }
-  .overlay { position: absolute; inset: 0; transition: opacity 0.5s ease; }
+    /* Split screen */
+    .split-section {
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      position: relative;
+    }
 
-  /* Nav underline */
-  .nav-link { position: relative; padding-bottom: 2px; }
-  .nav-link::after { content:''; position:absolute; width:0; height:2px; bottom:-4px; left:0; background:currentColor; transition: width 0.3s; }
-  .nav-link:hover::after { width:100%; }
+    .center-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 50;
+      pointer-events: none;
+    }
 
-  /* Page sections */
-  .page-section { display: none; }
-  .page-section.active { display: block; }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      transition: opacity 0.5s ease;
+    }
 
-  /* Reveal */
-  .reveal { opacity:0; transform:translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
-  .reveal.visible { opacity:1; transform:translateY(0); }
+    /* Nav underline */
+    .nav-link {
+      position: relative;
+      padding-bottom: 2px;
+    }
 
-  /* Menu tabs */
-  .menu-tab-content { display: none; }
-  .menu-tab-content.active { display: block; }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -4px;
+      left: 0;
+      background: currentColor;
+      transition: width 0.3s;
+    }
 
-  /* Inputs */
-  .form-field {
-    width:100%; padding:0.75rem 1rem; border:1px solid; font-size:0.9rem;
-    background: transparent; transition: border-color 0.3s; border-radius: 0.25rem;
-  }
-  .cafe-field { border-color: #2D5A27; color: #1a2e17; }
-  .cafe-field:focus { outline:none; border-color: #1a3810; box-shadow: 0 0 0 3px rgba(45,90,39,0.15); }
-  .bar-field { border-color: #D4AF37; color: #f5f0e0; background: rgba(212,175,55,0.05); }
-  .bar-field:focus { outline:none; border-color: #e8c84a; box-shadow: 0 0 0 3px rgba(212,175,55,0.2); }
-  select option { color: #1a202c; }
+    .nav-link:hover::after {
+      width: 100%;
+    }
 
-  /* Mobile */
-  #mobile-menu { display: none; }
-  #mobile-menu.open { display: flex; }
+    /* Page sections */
+    .page-section {
+      display: none;
+    }
 
-  /* Animations */
-  @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-  .fade-in-up { animation: fadeInUp 0.8s ease forwards; }
+    .page-section.active {
+      display: block;
+    }
 
-  .event-card { transition: transform 0.3s, box-shadow 0.3s; }
-  .event-card:hover { transform: translateY(-3px); }
-</style>
+    /* Reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Menu tabs */
+    .menu-tab-content {
+      display: none;
+    }
+
+    .menu-tab-content.active {
+      display: block;
+    }
+
+    /* Inputs */
+    .form-field {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid;
+      font-size: 0.9rem;
+      background: transparent;
+      transition: border-color 0.3s;
+      border-radius: 0.25rem;
+    }
+
+    .cafe-field {
+      border-color: #2D5A27;
+      color: #1a2e17;
+    }
+
+    .cafe-field:focus {
+      outline: none;
+      border-color: #1a3810;
+      box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.15);
+    }
+
+    .bar-field {
+      border-color: #D4AF37;
+      color: #f5f0e0;
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .bar-field:focus {
+      outline: none;
+      border-color: #e8c84a;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+
+    select option {
+      color: #1a202c;
+    }
+
+    /* Mobile */
+    #mobile-menu {
+      display: none;
+    }
+
+    #mobile-menu.open {
+      display: flex;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .event-card {
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .event-card:hover {
+      transform: translateY(-3px);
+    }
+  </style>
 </head>
+
 <body class="bg-gray-100">
 
-<style>
-  /* Push page content down so the fixed bar doesn't overlap */
-  body { padding-top: 44px !important; }
-</style>
+  <style>
+    /* Push page content down so the fixed bar doesn't overlap */
+    body {
+      padding-top: 44px !important;
+    }
+  </style>
 
-<!-- HEADER -->
-<header class="fixed top-0 w-full z-[100] px-8 py-5 flex justify-between items-center transition-all duration-500" id="main-nav"
-        style="background: transparent; color: #1a202c;">
-  
+  <!-- HEADER -->
+  <header class="fixed top-0 w-full z-[100] px-8 py-5 flex justify-between items-center transition-all duration-500"
+    id="main-nav" style="background: transparent; color: #1a202c;">
 
-  <button class="text-xl font-bold tracking-tighter uppercase hover:opacity-70 transition-opacity" onclick="showSection('home')" id="logo-btn">
-    Split <em class="text-cafe-accent">Screen</em>
-  </button>
+    <div class="flex items-center gap-6">
+      <a href="showcase.html"
+        class="text-sm font-medium tracking-widest uppercase opacity-70 hover:opacity-100 transition-opacity no-underline"
+        style="font-family:'Georgia',serif; text-decoration:none; color:inherit;">&larr; Back to Showcase</a>
 
-  <!-- Desktop nav -->
-  <nav class="hidden md:flex space-x-10 font-medium text-sm">
-    <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('cafe-full')">Cafe</button>
-    <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('bar-full')">Bar</button>
-    <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('menu-full')">Menu</button>
-    <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('reservations-full')">Reservations</button>
-    <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('events-full')">Events</button>
-    <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('contact-full')">Contact</button>
-  </nav>
-
-  <!-- Mobile hamburger -->
-  <button class="md:hidden p-2" id="hamburger">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-  </button>
-</header>
-
-<!-- MOBILE MENU -->
-<div class="fixed inset-0 z-[200] flex-col items-center justify-center space-y-8" id="mobile-menu"
-     style="background: #F5F5DC;">
-  <button class="absolute top-5 right-6 text-2xl text-cafe-accent" id="close-menu">✕</button>
-  <button class="text-3xl font-serif" onclick="showSection('home'); closeMob()">Home</button>
-  <button class="text-3xl font-serif" onclick="showSection('cafe-full'); closeMob()">The Cafe</button>
-  <button class="text-3xl font-serif" onclick="showSection('bar-full'); closeMob()">The Bar</button>
-  <button class="text-3xl font-serif" onclick="showSection('menu-full'); closeMob()">Menu</button>
-  <button class="text-3xl font-serif" onclick="showSection('reservations-full'); closeMob()">Reservations</button>
-  <button class="text-3xl font-serif" onclick="showSection('events-full'); closeMob()">Events</button>
-  <button class="text-3xl font-serif" onclick="showSection('contact-full'); closeMob()">Contact</button>
-</div>
-
-<!-- ═══════════════ HOME / SPLIT ═══ -->
-<div class="page-section active" id="section-home">
-  <!-- MOBILE: stacked layout -->
-  <div class="md:hidden flex flex-col h-screen pt-16">
-    <div class="flex-1 flex flex-col items-center justify-center bg-cafe-light text-cafe-accent relative overflow-hidden cursor-pointer"
-         onclick="showSection('cafe-full')">
-      <div class="absolute inset-0 opacity-20">
-        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover"/>
-      </div>
-      <div class="relative z-10 text-center px-6">
-        <p class="text-xs uppercase tracking-[0.3em] mb-2 opacity-70">Morning Bliss</p>
-        <h1 class="text-5xl font-serif mb-3">Cafe</h1>
-        <p class="text-base opacity-70 italic mb-4">Artisanal roasts & sun-drenched mornings</p>
-        <span class="text-xs font-bold uppercase tracking-widest border border-cafe-accent px-4 py-2">Enter →</span>
-      </div>
+      <button class="text-xl font-bold tracking-tighter uppercase hover:opacity-70 transition-opacity"
+        onclick="showSection('home')" id="logo-btn">
+        Split <em class="text-cafe-accent">Screen</em>
+      </button>
     </div>
-    <div class="flex-1 flex flex-col items-center justify-center bg-bar-dark text-bar-accent relative overflow-hidden cursor-pointer"
-         onclick="showSection('bar-full')">
-      <div class="absolute inset-0 opacity-25">
-        <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover"/>
-      </div>
-      <div class="relative z-10 text-center px-6">
-        <p class="text-xs uppercase tracking-[0.3em] mb-2 opacity-70">Evening Elegance</p>
-        <h1 class="text-5xl font-serif mb-3">Bar</h1>
-        <p class="text-base opacity-70 italic mb-4">Craft cocktails & moody jazz nights</p>
-        <span class="text-xs font-bold uppercase tracking-widest border border-bar-accent px-4 py-2">Enter →</span>
-      </div>
-    </div>
+
+    <!-- Desktop nav -->
+    <nav class="hidden md:flex space-x-10 font-medium text-sm">
+      <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('cafe-full')">Cafe</button>
+      <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('bar-full')">Bar</button>
+      <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('menu-full')">Menu</button>
+      <button class="nav-link hover:opacity-70 transition-opacity"
+        onclick="showSection('reservations-full')">Reservations</button>
+      <button class="nav-link hover:opacity-70 transition-opacity" onclick="showSection('events-full')">Events</button>
+      <button class="nav-link hover:opacity-70 transition-opacity"
+        onclick="showSection('contact-full')">Contact</button>
+    </nav>
+
+    <!-- Mobile hamburger -->
+    <button class="md:hidden p-2" id="hamburger">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <div class="fixed inset-0 z-[200] flex-col items-center justify-center space-y-8" id="mobile-menu"
+    style="background: #F5F5DC;">
+    <button class="absolute top-5 right-6 text-2xl text-cafe-accent" id="close-menu">✕</button>
+    <button class="text-3xl font-serif" onclick="showSection('home'); closeMob()">Home</button>
+    <button class="text-3xl font-serif" onclick="showSection('cafe-full'); closeMob()">The Cafe</button>
+    <button class="text-3xl font-serif" onclick="showSection('bar-full'); closeMob()">The Bar</button>
+    <button class="text-3xl font-serif" onclick="showSection('menu-full'); closeMob()">Menu</button>
+    <button class="text-3xl font-serif" onclick="showSection('reservations-full'); closeMob()">Reservations</button>
+    <button class="text-3xl font-serif" onclick="showSection('events-full'); closeMob()">Events</button>
+    <button class="text-3xl font-serif" onclick="showSection('contact-full'); closeMob()">Contact</button>
   </div>
 
-  <!-- DESKTOP: split screen -->
-  <main class="relative h-screen hidden md:flex w-full overflow-hidden" id="split-container">
-    <!-- Center Circle -->
-    <div class="center-circle">
-      <div class="w-24 h-24 rounded-full border-4 border-white bg-white flex items-center justify-center text-xl font-bold shadow-2xl transition-all duration-500 text-gray-800" id="or-circle">OR</div>
-    </div>
-    <!-- Vertical divider line -->
-    <div class="absolute top-0 bottom-0 left-1/2 w-px bg-white/20 z-10 pointer-events-none"></div>
-
-    <!-- Cafe Side -->
-    <section class="split-section w-1/2 h-full bg-cafe-light flex flex-col items-center justify-center p-12 text-cafe-accent cursor-pointer"
-             id="cafe-side"
-             onmouseenter="expandSide('cafe')" onmouseleave="resetSides()"
-             onclick="showSection('cafe-full')">
-      <div class="overlay opacity-0 bg-black" id="cafe-overlay"></div>
-      <div class="absolute inset-0 z-0 opacity-15 pointer-events-none">
-        <img alt="Cafe" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=1600"/>
+  <!-- ═══════════════ HOME / SPLIT ═══ -->
+  <div class="page-section active" id="section-home">
+    <!-- MOBILE: stacked layout -->
+    <div class="md:hidden flex flex-col h-screen pt-16">
+      <div
+        class="flex-1 flex flex-col items-center justify-center bg-cafe-light text-cafe-accent relative overflow-hidden cursor-pointer"
+        onclick="showSection('cafe-full')">
+        <div class="absolute inset-0 opacity-20">
+          <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=800"
+            class="w-full h-full object-cover" />
+        </div>
+        <div class="relative z-10 text-center px-6">
+          <p class="text-xs uppercase tracking-[0.3em] mb-2 opacity-70">Morning Bliss</p>
+          <h1 class="text-5xl font-serif mb-3">Cafe</h1>
+          <p class="text-base opacity-70 italic mb-4">Artisanal roasts & sun-drenched mornings</p>
+          <span class="text-xs font-bold uppercase tracking-widest border border-cafe-accent px-4 py-2">Enter →</span>
+        </div>
       </div>
-      <div class="z-10 text-center max-w-md">
-        <span class="uppercase tracking-[0.3em] text-sm mb-4 block">Morning Bliss</span>
-        <h1 class="text-7xl md:text-8xl font-serif mb-6">Cafe</h1>
-        <p class="text-lg opacity-80 mb-8 italic">Artisanal roasts, organic greens, and sun-drenched mornings.</p>
-        <p class="text-xs uppercase tracking-widest opacity-60 mb-2">Open 07:00 – 16:00</p>
-        <button class="px-8 py-3 border-2 border-cafe-accent hover:bg-cafe-accent hover:text-white transition-colors duration-300 tracking-widest uppercase text-xs font-bold mt-4">
-          Explore Menu
-        </button>
-      </div>
-    </section>
-
-    <!-- Bar Side -->
-    <section class="split-section w-1/2 h-full bg-bar-dark flex flex-col items-center justify-center p-12 text-bar-accent cursor-pointer"
-             id="bar-side"
-             onmouseenter="expandSide('bar')" onmouseleave="resetSides()"
-             onclick="showSection('bar-full')">
-      <div class="overlay opacity-20 bg-black" id="bar-overlay"></div>
-      <div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <img alt="Bar" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&q=80&w=1600"/>
-      </div>
-      <div class="z-10 text-center max-w-md">
-        <span class="uppercase tracking-[0.3em] text-sm mb-4 block">Evening Elegance</span>
-        <h1 class="text-7xl md:text-8xl font-serif mb-6">Bar</h1>
-        <p class="text-lg opacity-80 mb-8 italic">Crafted cocktails, curated spirits, and moody jazz nights.</p>
-        <p class="text-xs uppercase tracking-widest opacity-60 mb-2">Open 17:00 – 01:00</p>
-        <button class="px-8 py-3 border-2 border-bar-accent hover:bg-bar-accent hover:text-bar-dark transition-colors duration-300 tracking-widest uppercase text-xs font-bold mt-4">
-          See Cocktails
-        </button>
-      </div>
-    </section>
-  </main>
-</div>
-
-<!-- ═══════════════ CAFE ═══ -->
-<div class="page-section" id="section-cafe-full">
-  <div style="background: #F5F5DC; color: #2D5A27; min-height: 100vh; padding-top: 80px;">
-    <!-- Hero -->
-    <div class="h-[55vh] relative overflow-hidden flex items-end justify-start" style="background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=2070'); background-size: cover; background-position: center;">
-      <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(245,245,220,0.85) 0%, rgba(245,245,220,0.1) 100%);"></div>
-      <div class="relative z-10 px-12 pb-12">
-        <p class="text-xs uppercase tracking-widest mb-2 opacity-70">Open 7am – 4pm</p>
-        <h1 class="text-6xl md:text-8xl font-serif mb-4">The Cafe</h1>
-        <p class="text-xl opacity-80 max-w-md italic">Where mornings become a ritual and afternoons linger pleasantly.</p>
-        <div class="flex gap-4 mt-6 flex-wrap">
-          <button onclick="showSection('menu-full')" class="px-8 py-3 border-2 border-cafe-accent hover:bg-cafe-accent hover:text-white transition-colors font-bold uppercase text-xs tracking-widest">View Menu</button>
-          <button onclick="showSection('contact-full')" class="px-8 py-3 bg-cafe-accent text-cafe-light font-bold uppercase text-xs tracking-widest hover:opacity-80 transition-opacity">Order Catering</button>
+      <div
+        class="flex-1 flex flex-col items-center justify-center bg-bar-dark text-bar-accent relative overflow-hidden cursor-pointer"
+        onclick="showSection('bar-full')">
+        <div class="absolute inset-0 opacity-25">
+          <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=800"
+            class="w-full h-full object-cover" />
+        </div>
+        <div class="relative z-10 text-center px-6">
+          <p class="text-xs uppercase tracking-[0.3em] mb-2 opacity-70">Evening Elegance</p>
+          <h1 class="text-5xl font-serif mb-3">Bar</h1>
+          <p class="text-base opacity-70 italic mb-4">Craft cocktails & moody jazz nights</p>
+          <span class="text-xs font-bold uppercase tracking-widest border border-bar-accent px-4 py-2">Enter →</span>
         </div>
       </div>
     </div>
 
-    <!-- Content -->
-    <div class="container mx-auto px-8 py-16 space-y-16">
-      <div class="grid md:grid-cols-2 gap-16 items-center reveal">
-        <div>
-          <p class="text-xs uppercase tracking-widest mb-3 opacity-60">Our Story</p>
-          <h2 class="text-4xl font-serif mb-6">A Warm Welcome Every Morning</h2>
-          <p class="text-lg leading-relaxed opacity-80 mb-4">We believe great coffee and great food are acts of hospitality. Our cafe is a neighbourhood institution — a place for quiet mornings, working lunches, and everything in between.</p>
-          <p class="leading-relaxed opacity-70">Every bean sourced with intention, every pastry made in-house before dawn, every cup served with attention to the moment you're having.</p>
-        </div>
-        <div class="rounded-lg overflow-hidden shadow-2xl">
-          <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=800" alt="Cafe" class="w-full h-80 object-cover"/>
-        </div>
+    <!-- DESKTOP: split screen -->
+    <main class="relative h-screen hidden md:flex w-full overflow-hidden" id="split-container">
+      <!-- Center Circle -->
+      <div class="center-circle">
+        <div
+          class="w-24 h-24 rounded-full border-4 border-white bg-white flex items-center justify-center text-xl font-bold shadow-2xl transition-all duration-500 text-gray-800"
+          id="or-circle">OR</div>
       </div>
+      <!-- Vertical divider line -->
+      <div class="absolute top-0 bottom-0 left-1/2 w-px bg-white/20 z-10 pointer-events-none"></div>
 
-      <!-- Features -->
-      <div class="grid md:grid-cols-3 gap-6 reveal">
-        <div class="p-8 border-2 border-cafe-accent/30 rounded-lg bg-cafe-mid/50">
-          <div class="text-3xl mb-4">☕</div>
-          <h3 class="text-xl font-serif mb-3">Specialty Coffee</h3>
-          <p class="opacity-70 text-sm leading-relaxed">Single-origin beans, precision brewing, and milk steamed to perfection.</p>
+      <!-- Cafe Side -->
+      <section
+        class="split-section w-1/2 h-full bg-cafe-light flex flex-col items-center justify-center p-12 text-cafe-accent cursor-pointer"
+        id="cafe-side" onmouseenter="expandSide('cafe')" onmouseleave="resetSides()" onclick="showSection('cafe-full')">
+        <div class="overlay opacity-0 bg-black" id="cafe-overlay"></div>
+        <div class="absolute inset-0 z-0 opacity-15 pointer-events-none">
+          <img alt="Cafe" class="w-full h-full object-cover"
+            src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=1600" />
         </div>
-        <div class="p-8 border-2 border-cafe-accent/30 rounded-lg bg-cafe-mid/50">
-          <div class="text-3xl mb-4">🥐</div>
-          <h3 class="text-xl font-serif mb-3">Fresh Kitchen</h3>
-          <p class="opacity-70 text-sm leading-relaxed">All pastries and food made in-house daily. Seasonal specials each week.</p>
+        <div class="z-10 text-center max-w-md">
+          <span class="uppercase tracking-[0.3em] text-sm mb-4 block">Morning Bliss</span>
+          <h1 class="text-7xl md:text-8xl font-serif mb-6">Cafe</h1>
+          <p class="text-lg opacity-80 mb-8 italic">Artisanal roasts, organic greens, and sun-drenched mornings.</p>
+          <p class="text-xs uppercase tracking-widest opacity-60 mb-2">Open 07:00 – 16:00</p>
+          <button
+            class="px-8 py-3 border-2 border-cafe-accent hover:bg-cafe-accent hover:text-white transition-colors duration-300 tracking-widest uppercase text-xs font-bold mt-4">
+            Explore Menu
+          </button>
         </div>
-        <div class="p-8 border-2 border-cafe-accent/30 rounded-lg bg-cafe-mid/50">
-          <div class="text-3xl mb-4">🌿</div>
-          <h3 class="text-xl font-serif mb-3">Ethically Sourced</h3>
-          <p class="opacity-70 text-sm leading-relaxed">We work with local farms and ethical suppliers for every ingredient.</p>
-        </div>
-      </div>
+      </section>
 
-      <!-- Ordering -->
-      <div class="reveal">
-        <p class="text-xs uppercase tracking-widest mb-3 opacity-60">Order & Delivery</p>
-        <h2 class="text-3xl font-serif mb-8">Get Our Food Your Way</h2>
-        <div class="grid md:grid-cols-3 gap-6">
-          <div class="p-6 border border-cafe-accent/30 rounded-lg hover:bg-cafe-mid/50 transition-colors">
-            <div class="text-2xl mb-3">✉️</div>
-            <h3 class="font-bold text-lg mb-2">Catering Enquiry</h3>
-            <p class="text-sm opacity-70 mb-4">Planning an event? We'll craft a custom menu for your occasion.</p>
-            <button onclick="showSection('contact-full')" class="text-xs font-bold uppercase tracking-widest border-b border-current pb-1 hover:opacity-60 transition-opacity">Get in Touch</button>
-          </div>
-          <div class="p-6 border border-cafe-accent/30 rounded-lg hover:bg-cafe-mid/50 transition-colors">
-            <div class="text-2xl mb-3">🛒</div>
-            <h3 class="font-bold text-lg mb-2">Order Online</h3>
-            <p class="text-sm opacity-70 mb-4">Browse our menu and place orders for collection or local delivery.</p>
-            <button onclick="showSection('menu-full')" class="text-xs font-bold uppercase tracking-widest border-b border-current pb-1 hover:opacity-60 transition-opacity">View Menu</button>
-          </div>
-          <div class="p-6 border border-cafe-accent/30 rounded-lg hover:bg-cafe-mid/50 transition-colors">
-            <div class="text-2xl mb-3">🛵</div>
-            <h3 class="font-bold text-lg mb-2">Delivery Apps</h3>
-            <p class="text-sm opacity-70 mb-4">Find us on Deliveroo and Just Eat for fast delivery.</p>
-            <div class="flex gap-2"><a href="#" class="text-xs font-bold px-3 py-1 border border-cafe-accent rounded-full hover:opacity-60">Deliveroo</a><a href="#" class="text-xs font-bold px-3 py-1 border border-cafe-accent rounded-full hover:opacity-60">Just Eat</a></div>
-          </div>
+      <!-- Bar Side -->
+      <section
+        class="split-section w-1/2 h-full bg-bar-dark flex flex-col items-center justify-center p-12 text-bar-accent cursor-pointer"
+        id="bar-side" onmouseenter="expandSide('bar')" onmouseleave="resetSides()" onclick="showSection('bar-full')">
+        <div class="overlay opacity-20 bg-black" id="bar-overlay"></div>
+        <div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
+          <img alt="Bar" class="w-full h-full object-cover"
+            src="https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&q=80&w=1600" />
         </div>
-      </div>
-    </div>
-
-    <!-- Cafe Footer -->
-    <footer class="py-10 px-8 border-t border-cafe-accent/20 bg-cafe-mid/40">
-      <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="font-bold text-xl">Split <em>Screen</em></div>
-        <div class="text-sm opacity-60 text-center">123 Narrative Lane · Open Cafe: 7am–4pm · Bar: 5pm–1am</div>
-        <div class="flex gap-6">
-          <a href="#" class="text-sm hover:opacity-50 transition-opacity">Instagram</a>
-          <a href="#" class="text-sm hover:opacity-50 transition-opacity">Facebook</a>
-          <a href="#" class="text-sm hover:opacity-50 transition-opacity">Twitter</a>
+        <div class="z-10 text-center max-w-md">
+          <span class="uppercase tracking-[0.3em] text-sm mb-4 block">Evening Elegance</span>
+          <h1 class="text-7xl md:text-8xl font-serif mb-6">Bar</h1>
+          <p class="text-lg opacity-80 mb-8 italic">Crafted cocktails, curated spirits, and moody jazz nights.</p>
+          <p class="text-xs uppercase tracking-widest opacity-60 mb-2">Open 17:00 – 01:00</p>
+          <button
+            class="px-8 py-3 border-2 border-bar-accent hover:bg-bar-accent hover:text-bar-dark transition-colors duration-300 tracking-widest uppercase text-xs font-bold mt-4">
+            See Cocktails
+          </button>
         </div>
-      </div>
-    </footer>
+      </section>
+    </main>
   </div>
-</div>
 
-<!-- ═══════════════ BAR ═══ -->
-<div class="page-section" id="section-bar-full">
-  <div style="background: #0A1128; color: #D4AF37; min-height: 100vh; padding-top: 80px;">
-    <!-- Hero -->
-    <div class="h-[55vh] relative overflow-hidden flex items-end justify-end" style="background-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=2070'); background-size: cover; background-position: center;">
-      <div class="absolute inset-0" style="background: linear-gradient(to left, rgba(10,17,40,0.9) 0%, rgba(10,17,40,0.2) 100%);"></div>
-      <div class="relative z-10 px-12 pb-12 text-right">
-        <p class="text-xs uppercase tracking-widest mb-2" style="color: rgba(212,175,55,0.7)">Open 5pm – 1am</p>
-        <h1 class="text-6xl md:text-8xl font-serif mb-4">The Bar</h1>
-        <p class="text-xl max-w-md italic ml-auto" style="color: rgba(212,175,55,0.8)">Where evenings become stories and nights take on a life of their own.</p>
-        <div class="flex gap-4 mt-6 justify-end flex-wrap">
-          <button onclick="showSection('reservations-full')" class="px-8 py-3 bg-bar-accent text-bar-dark font-bold uppercase text-xs tracking-widest hover:opacity-80 transition-opacity">Book a Table</button>
-          <button onclick="showSection('menu-full')" class="px-8 py-3 border-2 border-bar-accent hover:bg-bar-accent hover:text-bar-dark transition-colors font-bold uppercase text-xs tracking-widest">Drinks Menu</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="container mx-auto px-8 py-16 space-y-16">
-      <div class="grid md:grid-cols-2 gap-16 items-center reveal">
-        <div class="rounded-lg overflow-hidden shadow-2xl">
-          <img src="https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&q=80&w=800" alt="Bar" class="w-full h-80 object-cover"/>
-        </div>
-        <div>
-          <p class="text-xs uppercase tracking-widest mb-3" style="opacity:0.6">The Evening</p>
-          <h2 class="text-4xl font-serif mb-6">Crafted with Intention</h2>
-          <p class="text-lg leading-relaxed mb-4" style="opacity:0.8">When the sun dips below the horizon, Split Screen transforms. The same space that welcomed you with morning light now embraces you with warm amber and shadow.</p>
-          <p class="leading-relaxed" style="opacity:0.7">Our bartenders are artists. Every cocktail built from scratch — fresh juices, house-made syrups, carefully selected spirits.</p>
-        </div>
-      </div>
-
-      <!-- Bar Features -->
-      <div class="grid md:grid-cols-3 gap-6 reveal">
-        <div class="p-8 border border-bar-accent/30 rounded-lg" style="background: rgba(212,175,55,0.05)">
-          <div class="text-3xl mb-4">🍸</div>
-          <h3 class="text-xl font-serif mb-3">Craft Cocktails</h3>
-          <p class="text-sm leading-relaxed" style="opacity:0.7">Seasonal menus, classic standards, and off-menu creations. Ask your bartender.</p>
-        </div>
-        <div class="p-8 border border-bar-accent/30 rounded-lg" style="background: rgba(212,175,55,0.05)">
-          <div class="text-3xl mb-4">🎵</div>
-          <h3 class="text-xl font-serif mb-3">Live Music</h3>
-          <p class="text-sm leading-relaxed" style="opacity:0.7">Weekly jazz nights, acoustic sessions, and curated DJ sets. See our events.</p>
-        </div>
-        <div class="p-8 border border-bar-accent/30 rounded-lg" style="background: rgba(212,175,55,0.05)">
-          <div class="text-3xl mb-4">🎩</div>
-          <h3 class="text-xl font-serif mb-3">Private Hire</h3>
-          <p class="text-sm leading-relaxed" style="opacity:0.7">Host your event in our atmospheric bar space. Bespoke packages available.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bar Footer -->
-    <footer class="py-10 px-8 border-t" style="border-color: rgba(212,175,55,0.2); background: rgba(212,175,55,0.03);">
-      <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="font-bold text-xl font-serif">Split <em>Screen</em></div>
-        <div class="text-sm text-center" style="opacity:0.5">123 Narrative Lane · Open Cafe: 7am–4pm · Bar: 5pm–1am</div>
-        <div class="flex gap-6">
-          <a href="#" class="text-sm hover:opacity-50 transition-opacity">Instagram</a>
-          <a href="#" class="text-sm hover:opacity-50 transition-opacity">Facebook</a>
-        </div>
-      </div>
-    </footer>
-  </div>
-</div>
-
-<!-- ═══════════════ MENU ═══ -->
-<div class="page-section" id="section-menu-full">
-  <div class="min-h-screen" style="background: #F5F5DC; color: #1a2e17; padding-top: 80px;">
-    <div class="container mx-auto px-8 py-16">
-      <div class="text-center mb-12 reveal">
-        <p class="text-xs uppercase tracking-widest mb-3 opacity-50" style="color: #2D5A27">Food & Drink</p>
-        <h1 class="text-5xl font-serif mb-4" style="color: #2D5A27">Our Menu</h1>
-        <p class="opacity-70 max-w-lg mx-auto">All items freshly prepared daily. Menu changes seasonally.</p>
-      </div>
-
-      <!-- Tabs -->
-      <div class="flex flex-wrap justify-center mb-12 border-b border-current/20 reveal">
-        <button class="menu-tab-btn px-5 py-3 font-bold text-xs uppercase tracking-widest border-b-2 border-cafe-accent text-cafe-accent" onclick="switchMenuTab2('food')">☕ Cafe Food</button>
-        <button class="menu-tab-btn px-5 py-3 font-bold text-xs uppercase tracking-widest opacity-50 hover:opacity-80" onclick="switchMenuTab2('drinks')">🥤 Cafe Drinks</button>
-        <button class="menu-tab-btn px-5 py-3 font-bold text-xs uppercase tracking-widest opacity-50 hover:opacity-80" onclick="switchMenuTab2('cocktails')">🍸 Cocktails</button>
-        <button class="menu-tab-btn px-5 py-3 font-bold text-xs uppercase tracking-widest opacity-50 hover:opacity-80" onclick="switchMenuTab2('wines')">🍷 Wines & Beer</button>
-      </div>
-
-      <div class="menu-tab-content active" id="tab2-food">
-        <div class="grid md:grid-cols-2 gap-x-16 gap-y-2 max-w-4xl mx-auto">
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Avocado Toast</div><div class="text-xs opacity-60 mt-1">Sourdough, poached egg, chilli flakes</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£9.50</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Granola Bowl</div><div class="text-xs opacity-60 mt-1">House granola, seasonal fruit, yoghurt</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£8.00</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">BLT Sandwich</div><div class="text-xs opacity-60 mt-1">Smoked bacon, lettuce, tomato, aioli</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£10.00</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Banana Bread</div><div class="text-xs opacity-60 mt-1">Served warm with salted butter</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£4.50</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Cheese Toastie</div><div class="text-xs opacity-60 mt-1">Mature cheddar, house pickles</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£8.50</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Eggs Benedict</div><div class="text-xs opacity-60 mt-1">English muffin, ham hock, hollandaise</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£12.00</div></div>
-        </div>
-      </div>
-      <div class="menu-tab-content" id="tab2-drinks">
-        <div class="grid md:grid-cols-2 gap-x-16 gap-y-2 max-w-4xl mx-auto">
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Flat White</div><div class="text-xs opacity-60 mt-1">Double shot, steamed milk</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£3.80</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Oat Latte</div><div class="text-xs opacity-60 mt-1">Seasonal blend, oat milk</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£4.20</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Filter Coffee</div><div class="text-xs opacity-60 mt-1">Single origin, daily rotation</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£3.20</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Matcha Latte</div><div class="text-xs opacity-60 mt-1">Ceremonial grade matcha</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£4.50</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Fresh Juice</div><div class="text-xs opacity-60 mt-1">Seasonal fruits</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£4.00</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Loose Leaf Tea</div><div class="text-xs opacity-60 mt-1">Selection of single-estate teas</div></div><div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£3.50</div></div>
-        </div>
-      </div>
-      <div class="menu-tab-content" id="tab2-cocktails">
-        <div class="grid md:grid-cols-2 gap-x-16 gap-y-2 max-w-4xl mx-auto">
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Negroni</div><div class="text-xs opacity-60 mt-1">Gin, Campari, sweet vermouth</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">£12</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Espresso Martini</div><div class="text-xs opacity-60 mt-1">Vodka, Kahlúa, fresh espresso</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">£13</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Aperol Spritz</div><div class="text-xs opacity-60 mt-1">Aperol, Prosecco, orange</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">£11</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Old Fashioned</div><div class="text-xs opacity-60 mt-1">Bourbon, bitters, orange peel</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">£14</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">House Signature</div><div class="text-xs opacity-60 mt-1">Ask your bartender</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">£15</div></div>
-        </div>
-      </div>
-      <div class="menu-tab-content" id="tab2-wines">
-        <div class="grid md:grid-cols-2 gap-x-16 gap-y-2 max-w-4xl mx-auto">
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">House Red</div><div class="text-xs opacity-60 mt-1">175ml / Bottle</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">£8 / £32</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">House White</div><div class="text-xs opacity-60 mt-1">175ml / Bottle</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">£8 / £32</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Prosecco</div><div class="text-xs opacity-60 mt-1">125ml / Bottle</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">£9 / £38</div></div>
-          <div class="flex justify-between py-4 border-b border-cafe-accent/20"><div><div class="font-serif text-lg">Craft Lager</div><div class="text-xs opacity-60 mt-1">Rotating local brewery</div></div><div class="font-bold text-bar-accent ml-4 flex-shrink-0">from £6</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ RESERVATIONS ═══ -->
-<div class="page-section" id="section-reservations-full">
-  <div class="min-h-screen" style="background: #0A1128; color: #D4AF37; padding-top: 80px;">
-    <div class="container mx-auto px-8 py-16 max-w-3xl">
-      <div class="text-center mb-12 reveal">
-        <p class="text-xs uppercase tracking-widest mb-3 opacity-60">The Bar</p>
-        <h1 class="text-5xl font-serif mb-4">Reserve a Table</h1>
-        <p class="opacity-70 max-w-md mx-auto">No deposit required. Cancel up to 24 hours before your visit.</p>
-      </div>
-      <div class="rounded-2xl p-8 md:p-12 reveal" style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
-        <form id="booking-form2" onsubmit="submitBooking2(event)">
-          <div class="grid md:grid-cols-2 gap-6 mb-6">
-            <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">First Name *</label><input class="form-field bar-field" type="text" placeholder="Your first name" required/></div>
-            <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Last Name *</label><input class="form-field bar-field" type="text" placeholder="Your last name" required/></div>
-          </div>
-          <div class="grid md:grid-cols-2 gap-6 mb-6">
-            <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Email *</label><input class="form-field bar-field" type="email" placeholder="your@email.com" required/></div>
-            <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Phone</label><input class="form-field bar-field" type="tel" placeholder="+44..."/></div>
-          </div>
-          <div class="grid md:grid-cols-3 gap-6 mb-6">
-            <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Date *</label><input class="form-field bar-field" type="date" required/></div>
-            <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Time *</label>
-              <select class="form-field bar-field" required>
-                <option value="">Select</option>
-                <option>17:00</option><option>18:00</option><option>19:00</option><option>20:00</option><option>21:00</option>
-              </select>
-            </div>
-            <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Guests *</label>
-              <select class="form-field bar-field" required>
-                <option value="">Select</option>
-                <option>1-2</option><option>3-4</option><option>5-6</option><option>7-9</option>
-              </select>
-            </div>
-          </div>
-          <div class="mb-8"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Special Requirements</label><textarea class="form-field bar-field" rows="3" placeholder="Dietary needs, accessibility, occasion..."></textarea></div>
-          <button type="submit" class="w-full py-4 font-bold uppercase tracking-widest text-sm" style="background: #D4AF37; color: #0A1128;">Confirm Reservation</button>
-          <p class="text-center text-xs opacity-40 mt-4">No deposit · Free cancellation 24hrs prior</p>
-        </form>
-        <div class="text-center py-12 hidden" id="booking-success2">
-          <div class="text-5xl mb-4">✅</div>
-          <h3 class="text-2xl font-serif mb-2">Booking Confirmed!</h3>
-          <p class="opacity-70">We look forward to seeing you. Confirmation sent to your email.</p>
-          <button onclick="resetBooking2()" class="mt-6 px-6 py-2 border border-current rounded-full text-sm hover:opacity-60">Book again</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ EVENTS ═══ -->
-<div class="page-section" id="section-events-full">
-  <div class="min-h-screen" style="background: #0A1128; color: #D4AF37; padding-top: 80px;">
-    <div class="container mx-auto px-8 py-16">
-      <div class="text-center mb-12 reveal">
-        <p class="text-xs uppercase tracking-widest mb-3 opacity-60">What's On</p>
-        <h1 class="text-5xl font-serif mb-4">Events</h1>
-      </div>
-      <div class="space-y-4 max-w-3xl mx-auto">
-        <div class="event-card p-6 rounded-xl flex gap-6 items-start reveal" style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
-          <div class="text-center w-14 flex-shrink-0"><div class="text-3xl font-serif font-bold">15</div><div class="text-xs uppercase tracking-widest opacity-60">Mar</div></div>
-          <div class="flex-1"><div class="flex justify-between items-start"><h3 class="text-xl font-serif">Jazz Night</h3><span class="text-xs px-3 py-1 rounded-full opacity-60" style="border: 1px solid rgba(212,175,55,0.4)">Free</span></div><p class="opacity-60 text-sm mt-1">Live jazz trio from 8pm. Free entry.</p></div>
-        </div>
-        <div class="event-card p-6 rounded-xl flex gap-6 items-start reveal" style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
-          <div class="text-center w-14 flex-shrink-0"><div class="text-3xl font-serif font-bold">22</div><div class="text-xs uppercase tracking-widest opacity-60">Mar</div></div>
-          <div class="flex-1"><div class="flex justify-between items-start"><h3 class="text-xl font-serif">Wine Tasting</h3><span class="text-xs px-3 py-1 rounded-full opacity-60" style="border: 1px solid rgba(212,175,55,0.4)">£25pp</span></div><p class="opacity-60 text-sm mt-1">Six curated wines with our sommelier and paired small plates.</p></div>
-        </div>
-        <div class="event-card p-6 rounded-xl flex gap-6 items-start reveal" style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
-          <div class="text-center w-14 flex-shrink-0"><div class="text-3xl font-serif font-bold">28</div><div class="text-xs uppercase tracking-widest opacity-60">Mar</div></div>
-          <div class="flex-1"><div class="flex justify-between items-start"><h3 class="text-xl font-serif">Cocktail Masterclass</h3><span class="text-xs px-3 py-1 rounded-full opacity-60" style="border: 1px solid rgba(212,175,55,0.4)">£40pp</span></div><p class="opacity-60 text-sm mt-1">Learn to mix three signature cocktails from our head bartender.</p></div>
-        </div>
-        <div class="event-card p-6 rounded-xl flex gap-6 items-start reveal" style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
-          <div class="text-center w-14 flex-shrink-0"><div class="text-3xl font-serif font-bold">04</div><div class="text-xs uppercase tracking-widest opacity-60">Apr</div></div>
-          <div class="flex-1"><div class="flex justify-between items-start"><h3 class="text-xl font-serif">DJ Night</h3><span class="text-xs px-3 py-1 rounded-full opacity-60" style="border: 1px solid rgba(212,175,55,0.4)">Free</span></div><p class="opacity-60 text-sm mt-1">Local DJ spinning deep house from 9pm to midnight.</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ CONTACT ═══ -->
-<div class="page-section" id="section-contact-full">
-  <div class="min-h-screen" style="background: #F5F5DC; color: #2D5A27; padding-top: 80px;">
-    <div class="container mx-auto px-8 py-16">
-      <div class="text-center mb-12 reveal">
-        <p class="text-xs uppercase tracking-widest mb-3 opacity-50">Get in Touch</p>
-        <h1 class="text-5xl font-serif mb-4">Contact</h1>
-      </div>
-      <div class="grid md:grid-cols-2 gap-16 max-w-5xl mx-auto">
-        <div class="reveal space-y-8">
-          <div><p class="text-xs uppercase tracking-widest opacity-50 mb-2">Address</p><p class="font-serif text-xl">123 Narrative Lane<br/>Fiction District, AB1 2CD</p></div>
-          <div><p class="text-xs uppercase tracking-widest opacity-50 mb-2">Phone</p><p class="font-serif text-xl"><a href="tel:+442012345678" class="hover:opacity-60">+44 (0)20 1234 5678</a></p></div>
-          <div><p class="text-xs uppercase tracking-widest opacity-50 mb-2">Hours</p><p class="opacity-80">Cafe: Mon–Sun 07:00–16:00<br/>Bar: Mon–Sun 17:00–01:00</p></div>
-          <div class="p-4 border-l-4 border-cafe-accent bg-cafe-mid/40 rounded-r">
-            <p class="text-sm">♿ <strong>Wheelchair accessible venue.</strong> Contact us for specific accessibility requirements.</p>
-          </div>
-          <div class="flex gap-4">
-            <a href="#" class="text-sm font-bold border-b border-current pb-1 hover:opacity-50">Instagram</a>
-            <a href="#" class="text-sm font-bold border-b border-current pb-1 hover:opacity-50">Facebook</a>
-            <a href="#" class="text-sm font-bold border-b border-current pb-1 hover:opacity-50">Twitter</a>
+  <!-- ═══════════════ CAFE ═══ -->
+  <div class="page-section" id="section-cafe-full">
+    <div style="background: #F5F5DC; color: #2D5A27; min-height: 100vh; padding-top: 80px;">
+      <!-- Hero -->
+      <div class="h-[55vh] relative overflow-hidden flex items-end justify-start"
+        style="background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=2070'); background-size: cover; background-position: center;">
+        <div class="absolute inset-0"
+          style="background: linear-gradient(to right, rgba(245,245,220,0.85) 0%, rgba(245,245,220,0.1) 100%);"></div>
+        <div class="relative z-10 px-12 pb-12">
+          <p class="text-xs uppercase tracking-widest mb-2 opacity-70">Open 7am – 4pm</p>
+          <h1 class="text-6xl md:text-8xl font-serif mb-4">The Cafe</h1>
+          <p class="text-xl opacity-80 max-w-md italic">Where mornings become a ritual and afternoons linger pleasantly.
+          </p>
+          <div class="flex gap-4 mt-6 flex-wrap">
+            <button onclick="showSection('menu-full')"
+              class="px-8 py-3 border-2 border-cafe-accent hover:bg-cafe-accent hover:text-white transition-colors font-bold uppercase text-xs tracking-widest">View
+              Menu</button>
+            <button onclick="showSection('contact-full')"
+              class="px-8 py-3 bg-cafe-accent text-cafe-light font-bold uppercase text-xs tracking-widest hover:opacity-80 transition-opacity">Order
+              Catering</button>
           </div>
         </div>
+      </div>
+
+      <!-- Content -->
+      <div class="container mx-auto px-8 py-16 space-y-16">
+        <div class="grid md:grid-cols-2 gap-16 items-center reveal">
+          <div>
+            <p class="text-xs uppercase tracking-widest mb-3 opacity-60">Our Story</p>
+            <h2 class="text-4xl font-serif mb-6">A Warm Welcome Every Morning</h2>
+            <p class="text-lg leading-relaxed opacity-80 mb-4">We believe great coffee and great food are acts of
+              hospitality. Our cafe is a neighbourhood institution — a place for quiet mornings, working lunches, and
+              everything in between.</p>
+            <p class="leading-relaxed opacity-70">Every bean sourced with intention, every pastry made in-house before
+              dawn, every cup served with attention to the moment you're having.</p>
+          </div>
+          <div class="rounded-lg overflow-hidden shadow-2xl">
+            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=800"
+              alt="Cafe" class="w-full h-80 object-cover" />
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="grid md:grid-cols-3 gap-6 reveal">
+          <div class="p-8 border-2 border-cafe-accent/30 rounded-lg bg-cafe-mid/50">
+            <div class="text-3xl mb-4">☕</div>
+            <h3 class="text-xl font-serif mb-3">Specialty Coffee</h3>
+            <p class="opacity-70 text-sm leading-relaxed">Single-origin beans, precision brewing, and milk steamed to
+              perfection.</p>
+          </div>
+          <div class="p-8 border-2 border-cafe-accent/30 rounded-lg bg-cafe-mid/50">
+            <div class="text-3xl mb-4">🥐</div>
+            <h3 class="text-xl font-serif mb-3">Fresh Kitchen</h3>
+            <p class="opacity-70 text-sm leading-relaxed">All pastries and food made in-house daily. Seasonal specials
+              each week.</p>
+          </div>
+          <div class="p-8 border-2 border-cafe-accent/30 rounded-lg bg-cafe-mid/50">
+            <div class="text-3xl mb-4">🌿</div>
+            <h3 class="text-xl font-serif mb-3">Ethically Sourced</h3>
+            <p class="opacity-70 text-sm leading-relaxed">We work with local farms and ethical suppliers for every
+              ingredient.</p>
+          </div>
+        </div>
+
+        <!-- Ordering -->
         <div class="reveal">
-          <form onsubmit="submitContact2(event)">
-            <div class="mb-5"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Name *</label><input class="form-field cafe-field" type="text" placeholder="Your name" required/></div>
-            <div class="mb-5"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Email *</label><input class="form-field cafe-field" type="email" placeholder="your@email.com" required/></div>
-            <div class="mb-5"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Subject</label>
-              <select class="form-field cafe-field">
-                <option>General Enquiry</option><option>Catering / Events</option>
-                <option>Table Booking (10+ guests)</option><option>Newsletter Sign-up</option>
-              </select>
+          <p class="text-xs uppercase tracking-widest mb-3 opacity-60">Order & Delivery</p>
+          <h2 class="text-3xl font-serif mb-8">Get Our Food Your Way</h2>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="p-6 border border-cafe-accent/30 rounded-lg hover:bg-cafe-mid/50 transition-colors">
+              <div class="text-2xl mb-3">✉️</div>
+              <h3 class="font-bold text-lg mb-2">Catering Enquiry</h3>
+              <p class="text-sm opacity-70 mb-4">Planning an event? We'll craft a custom menu for your occasion.</p>
+              <button onclick="showSection('contact-full')"
+                class="text-xs font-bold uppercase tracking-widest border-b border-current pb-1 hover:opacity-60 transition-opacity">Get
+                in Touch</button>
             </div>
-            <div class="mb-8"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Message *</label><textarea class="form-field cafe-field" rows="5" placeholder="How can we help?" required></textarea></div>
-            <button type="submit" class="w-full py-4 bg-cafe-accent text-white font-bold uppercase tracking-widest text-sm hover:opacity-80 transition-opacity">Send Message</button>
-          </form>
+            <div class="p-6 border border-cafe-accent/30 rounded-lg hover:bg-cafe-mid/50 transition-colors">
+              <div class="text-2xl mb-3">🛒</div>
+              <h3 class="font-bold text-lg mb-2">Order Online</h3>
+              <p class="text-sm opacity-70 mb-4">Browse our menu and place orders for collection or local delivery.</p>
+              <button onclick="showSection('menu-full')"
+                class="text-xs font-bold uppercase tracking-widest border-b border-current pb-1 hover:opacity-60 transition-opacity">View
+                Menu</button>
+            </div>
+            <div class="p-6 border border-cafe-accent/30 rounded-lg hover:bg-cafe-mid/50 transition-colors">
+              <div class="text-2xl mb-3">🛵</div>
+              <h3 class="font-bold text-lg mb-2">Delivery Apps</h3>
+              <p class="text-sm opacity-70 mb-4">Find us on Deliveroo and Just Eat for fast delivery.</p>
+              <div class="flex gap-2"><a href="#"
+                  class="text-xs font-bold px-3 py-1 border border-cafe-accent rounded-full hover:opacity-60">Deliveroo</a><a
+                  href="#"
+                  class="text-xs font-bold px-3 py-1 border border-cafe-accent rounded-full hover:opacity-60">Just
+                  Eat</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cafe Footer -->
+      <footer class="py-10 px-8 border-t border-cafe-accent/20 bg-cafe-mid/40">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div class="font-bold text-xl">Split <em>Screen</em></div>
+          <div class="text-sm opacity-60 text-center">123 Narrative Lane · Open Cafe: 7am–4pm · Bar: 5pm–1am</div>
+          <div class="flex gap-6">
+            <a href="#" class="text-sm hover:opacity-50 transition-opacity">Instagram</a>
+            <a href="#" class="text-sm hover:opacity-50 transition-opacity">Facebook</a>
+            <a href="#" class="text-sm hover:opacity-50 transition-opacity">Twitter</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ═══════════════ BAR ═══ -->
+  <div class="page-section" id="section-bar-full">
+    <div style="background: #0A1128; color: #D4AF37; min-height: 100vh; padding-top: 80px;">
+      <!-- Hero -->
+      <div class="h-[55vh] relative overflow-hidden flex items-end justify-end"
+        style="background-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=2070'); background-size: cover; background-position: center;">
+        <div class="absolute inset-0"
+          style="background: linear-gradient(to left, rgba(10,17,40,0.9) 0%, rgba(10,17,40,0.2) 100%);"></div>
+        <div class="relative z-10 px-12 pb-12 text-right">
+          <p class="text-xs uppercase tracking-widest mb-2" style="color: rgba(212,175,55,0.7)">Open 5pm – 1am</p>
+          <h1 class="text-6xl md:text-8xl font-serif mb-4">The Bar</h1>
+          <p class="text-xl max-w-md italic ml-auto" style="color: rgba(212,175,55,0.8)">Where evenings become stories
+            and nights take on a life of their own.</p>
+          <div class="flex gap-4 mt-6 justify-end flex-wrap">
+            <button onclick="showSection('reservations-full')"
+              class="px-8 py-3 bg-bar-accent text-bar-dark font-bold uppercase text-xs tracking-widest hover:opacity-80 transition-opacity">Book
+              a Table</button>
+            <button onclick="showSection('menu-full')"
+              class="px-8 py-3 border-2 border-bar-accent hover:bg-bar-accent hover:text-bar-dark transition-colors font-bold uppercase text-xs tracking-widest">Drinks
+              Menu</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="container mx-auto px-8 py-16 space-y-16">
+        <div class="grid md:grid-cols-2 gap-16 items-center reveal">
+          <div class="rounded-lg overflow-hidden shadow-2xl">
+            <img src="https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&q=80&w=800"
+              alt="Bar" class="w-full h-80 object-cover" />
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-widest mb-3" style="opacity:0.6">The Evening</p>
+            <h2 class="text-4xl font-serif mb-6">Crafted with Intention</h2>
+            <p class="text-lg leading-relaxed mb-4" style="opacity:0.8">When the sun dips below the horizon, Split
+              Screen transforms. The same space that welcomed you with morning light now embraces you with warm amber
+              and shadow.</p>
+            <p class="leading-relaxed" style="opacity:0.7">Our bartenders are artists. Every cocktail built from scratch
+              — fresh juices, house-made syrups, carefully selected spirits.</p>
+          </div>
+        </div>
+
+        <!-- Bar Features -->
+        <div class="grid md:grid-cols-3 gap-6 reveal">
+          <div class="p-8 border border-bar-accent/30 rounded-lg" style="background: rgba(212,175,55,0.05)">
+            <div class="text-3xl mb-4">🍸</div>
+            <h3 class="text-xl font-serif mb-3">Craft Cocktails</h3>
+            <p class="text-sm leading-relaxed" style="opacity:0.7">Seasonal menus, classic standards, and off-menu
+              creations. Ask your bartender.</p>
+          </div>
+          <div class="p-8 border border-bar-accent/30 rounded-lg" style="background: rgba(212,175,55,0.05)">
+            <div class="text-3xl mb-4">🎵</div>
+            <h3 class="text-xl font-serif mb-3">Live Music</h3>
+            <p class="text-sm leading-relaxed" style="opacity:0.7">Weekly jazz nights, acoustic sessions, and curated DJ
+              sets. See our events.</p>
+          </div>
+          <div class="p-8 border border-bar-accent/30 rounded-lg" style="background: rgba(212,175,55,0.05)">
+            <div class="text-3xl mb-4">🎩</div>
+            <h3 class="text-xl font-serif mb-3">Private Hire</h3>
+            <p class="text-sm leading-relaxed" style="opacity:0.7">Host your event in our atmospheric bar space. Bespoke
+              packages available.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar Footer -->
+      <footer class="py-10 px-8 border-t"
+        style="border-color: rgba(212,175,55,0.2); background: rgba(212,175,55,0.03);">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div class="font-bold text-xl font-serif">Split <em>Screen</em></div>
+          <div class="text-sm text-center" style="opacity:0.5">123 Narrative Lane · Open Cafe: 7am–4pm · Bar: 5pm–1am
+          </div>
+          <div class="flex gap-6">
+            <a href="#" class="text-sm hover:opacity-50 transition-opacity">Instagram</a>
+            <a href="#" class="text-sm hover:opacity-50 transition-opacity">Facebook</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MENU ═══ -->
+  <div class="page-section" id="section-menu-full">
+    <div class="min-h-screen" style="background: #F5F5DC; color: #1a2e17; padding-top: 80px;">
+      <div class="container mx-auto px-8 py-16">
+        <div class="text-center mb-12 reveal">
+          <p class="text-xs uppercase tracking-widest mb-3 opacity-50" style="color: #2D5A27">Food & Drink</p>
+          <h1 class="text-5xl font-serif mb-4" style="color: #2D5A27">Our Menu</h1>
+          <p class="opacity-70 max-w-lg mx-auto">All items freshly prepared daily. Menu changes seasonally.</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex flex-wrap justify-center mb-12 border-b border-current/20 reveal">
+          <button
+            class="menu-tab-btn px-5 py-3 font-bold text-xs uppercase tracking-widest border-b-2 border-cafe-accent text-cafe-accent"
+            onclick="switchMenuTab2('food')">☕ Cafe Food</button>
+          <button class="menu-tab-btn px-5 py-3 font-bold text-xs uppercase tracking-widest opacity-50 hover:opacity-80"
+            onclick="switchMenuTab2('drinks')">🥤 Cafe Drinks</button>
+          <button class="menu-tab-btn px-5 py-3 font-bold text-xs uppercase tracking-widest opacity-50 hover:opacity-80"
+            onclick="switchMenuTab2('cocktails')">🍸 Cocktails</button>
+          <button class="menu-tab-btn px-5 py-3 font-bold text-xs uppercase tracking-widest opacity-50 hover:opacity-80"
+            onclick="switchMenuTab2('wines')">🍷 Wines & Beer</button>
+        </div>
+
+        <div class="menu-tab-content active" id="tab2-food">
+          <div class="grid md:grid-cols-2 gap-x-16 gap-y-2 max-w-4xl mx-auto">
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Avocado Toast</div>
+                <div class="text-xs opacity-60 mt-1">Sourdough, poached egg, chilli flakes</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£9.50</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Granola Bowl</div>
+                <div class="text-xs opacity-60 mt-1">House granola, seasonal fruit, yoghurt</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£8.00</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">BLT Sandwich</div>
+                <div class="text-xs opacity-60 mt-1">Smoked bacon, lettuce, tomato, aioli</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£10.00</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Banana Bread</div>
+                <div class="text-xs opacity-60 mt-1">Served warm with salted butter</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£4.50</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Cheese Toastie</div>
+                <div class="text-xs opacity-60 mt-1">Mature cheddar, house pickles</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£8.50</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Eggs Benedict</div>
+                <div class="text-xs opacity-60 mt-1">English muffin, ham hock, hollandaise</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£12.00</div>
+            </div>
+          </div>
+        </div>
+        <div class="menu-tab-content" id="tab2-drinks">
+          <div class="grid md:grid-cols-2 gap-x-16 gap-y-2 max-w-4xl mx-auto">
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Flat White</div>
+                <div class="text-xs opacity-60 mt-1">Double shot, steamed milk</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£3.80</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Oat Latte</div>
+                <div class="text-xs opacity-60 mt-1">Seasonal blend, oat milk</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£4.20</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Filter Coffee</div>
+                <div class="text-xs opacity-60 mt-1">Single origin, daily rotation</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£3.20</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Matcha Latte</div>
+                <div class="text-xs opacity-60 mt-1">Ceremonial grade matcha</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£4.50</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Fresh Juice</div>
+                <div class="text-xs opacity-60 mt-1">Seasonal fruits</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£4.00</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Loose Leaf Tea</div>
+                <div class="text-xs opacity-60 mt-1">Selection of single-estate teas</div>
+              </div>
+              <div class="font-bold text-cafe-accent ml-4 flex-shrink-0">£3.50</div>
+            </div>
+          </div>
+        </div>
+        <div class="menu-tab-content" id="tab2-cocktails">
+          <div class="grid md:grid-cols-2 gap-x-16 gap-y-2 max-w-4xl mx-auto">
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Negroni</div>
+                <div class="text-xs opacity-60 mt-1">Gin, Campari, sweet vermouth</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">£12</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Espresso Martini</div>
+                <div class="text-xs opacity-60 mt-1">Vodka, Kahlúa, fresh espresso</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">£13</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Aperol Spritz</div>
+                <div class="text-xs opacity-60 mt-1">Aperol, Prosecco, orange</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">£11</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Old Fashioned</div>
+                <div class="text-xs opacity-60 mt-1">Bourbon, bitters, orange peel</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">£14</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">House Signature</div>
+                <div class="text-xs opacity-60 mt-1">Ask your bartender</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">£15</div>
+            </div>
+          </div>
+        </div>
+        <div class="menu-tab-content" id="tab2-wines">
+          <div class="grid md:grid-cols-2 gap-x-16 gap-y-2 max-w-4xl mx-auto">
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">House Red</div>
+                <div class="text-xs opacity-60 mt-1">175ml / Bottle</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">£8 / £32</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">House White</div>
+                <div class="text-xs opacity-60 mt-1">175ml / Bottle</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">£8 / £32</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Prosecco</div>
+                <div class="text-xs opacity-60 mt-1">125ml / Bottle</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">£9 / £38</div>
+            </div>
+            <div class="flex justify-between py-4 border-b border-cafe-accent/20">
+              <div>
+                <div class="font-serif text-lg">Craft Lager</div>
+                <div class="text-xs opacity-60 mt-1">Rotating local brewery</div>
+              </div>
+              <div class="font-bold text-bar-accent ml-4 flex-shrink-0">from £6</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  // ═══ SPLIT SCREEN ═══
-  const cafeSide = document.getElementById('cafe-side');
-  const barSide = document.getElementById('bar-side');
-  const orCircle = document.getElementById('or-circle');
-  const nav = document.getElementById('main-nav');
+  <!-- ═══════════════ RESERVATIONS ═══ -->
+  <div class="page-section" id="section-reservations-full">
+    <div class="min-h-screen" style="background: #0A1128; color: #D4AF37; padding-top: 80px;">
+      <div class="container mx-auto px-8 py-16 max-w-3xl">
+        <div class="text-center mb-12 reveal">
+          <p class="text-xs uppercase tracking-widest mb-3 opacity-60">The Bar</p>
+          <h1 class="text-5xl font-serif mb-4">Reserve a Table</h1>
+          <p class="opacity-70 max-w-md mx-auto">No deposit required. Cancel up to 24 hours before your visit.</p>
+        </div>
+        <div class="rounded-2xl p-8 md:p-12 reveal"
+          style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
+          <form id="booking-form2" onsubmit="submitBooking2(event)">
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">First Name *</label><input
+                  class="form-field bar-field" type="text" placeholder="Your first name" required /></div>
+              <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Last Name *</label><input
+                  class="form-field bar-field" type="text" placeholder="Your last name" required /></div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Email *</label><input
+                  class="form-field bar-field" type="email" placeholder="your@email.com" required /></div>
+              <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Phone</label><input
+                  class="form-field bar-field" type="tel" placeholder="+44..." /></div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6 mb-6">
+              <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Date *</label><input
+                  class="form-field bar-field" type="date" required /></div>
+              <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Time *</label>
+                <select class="form-field bar-field" required>
+                  <option value="">Select</option>
+                  <option>17:00</option>
+                  <option>18:00</option>
+                  <option>19:00</option>
+                  <option>20:00</option>
+                  <option>21:00</option>
+                </select>
+              </div>
+              <div><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Guests *</label>
+                <select class="form-field bar-field" required>
+                  <option value="">Select</option>
+                  <option>1-2</option>
+                  <option>3-4</option>
+                  <option>5-6</option>
+                  <option>7-9</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-8"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Special
+                Requirements</label><textarea class="form-field bar-field" rows="3"
+                placeholder="Dietary needs, accessibility, occasion..."></textarea></div>
+            <button type="submit" class="w-full py-4 font-bold uppercase tracking-widest text-sm"
+              style="background: #D4AF37; color: #0A1128;">Confirm Reservation</button>
+            <p class="text-center text-xs opacity-40 mt-4">No deposit · Free cancellation 24hrs prior</p>
+          </form>
+          <div class="text-center py-12 hidden" id="booking-success2">
+            <div class="text-5xl mb-4">✅</div>
+            <h3 class="text-2xl font-serif mb-2">Booking Confirmed!</h3>
+            <p class="opacity-70">We look forward to seeing you. Confirmation sent to your email.</p>
+            <button onclick="resetBooking2()"
+              class="mt-6 px-6 py-2 border border-current rounded-full text-sm hover:opacity-60">Book again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  function expandSide(side) {
-    if (!cafeSide || !barSide) return;
-    if (side === 'cafe') {
-      cafeSide.style.width = '62%'; barSide.style.width = '38%';
-      nav.style.color = '#2D5A27';
-      orCircle.style.transform = 'scale(1.2)';
-      orCircle.style.backgroundColor = '#2D5A27';
-      orCircle.style.color = '#F5F5DC';
-      orCircle.style.borderColor = '#F5F5DC';
-      orCircle.innerHTML = 'CAFE';
-    } else {
-      cafeSide.style.width = '38%'; barSide.style.width = '62%';
-      nav.style.color = '#D4AF37';
-      orCircle.style.transform = 'scale(1.2)';
-      orCircle.style.backgroundColor = '#D4AF37';
-      orCircle.style.color = '#0A1128';
-      orCircle.style.borderColor = '#0A1128';
-      orCircle.innerHTML = 'BAR';
+  <!-- ═══════════════ EVENTS ═══ -->
+  <div class="page-section" id="section-events-full">
+    <div class="min-h-screen" style="background: #0A1128; color: #D4AF37; padding-top: 80px;">
+      <div class="container mx-auto px-8 py-16">
+        <div class="text-center mb-12 reveal">
+          <p class="text-xs uppercase tracking-widest mb-3 opacity-60">What's On</p>
+          <h1 class="text-5xl font-serif mb-4">Events</h1>
+        </div>
+        <div class="space-y-4 max-w-3xl mx-auto">
+          <div class="event-card p-6 rounded-xl flex gap-6 items-start reveal"
+            style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
+            <div class="text-center w-14 flex-shrink-0">
+              <div class="text-3xl font-serif font-bold">15</div>
+              <div class="text-xs uppercase tracking-widest opacity-60">Mar</div>
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start">
+                <h3 class="text-xl font-serif">Jazz Night</h3><span class="text-xs px-3 py-1 rounded-full opacity-60"
+                  style="border: 1px solid rgba(212,175,55,0.4)">Free</span>
+              </div>
+              <p class="opacity-60 text-sm mt-1">Live jazz trio from 8pm. Free entry.</p>
+            </div>
+          </div>
+          <div class="event-card p-6 rounded-xl flex gap-6 items-start reveal"
+            style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
+            <div class="text-center w-14 flex-shrink-0">
+              <div class="text-3xl font-serif font-bold">22</div>
+              <div class="text-xs uppercase tracking-widest opacity-60">Mar</div>
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start">
+                <h3 class="text-xl font-serif">Wine Tasting</h3><span class="text-xs px-3 py-1 rounded-full opacity-60"
+                  style="border: 1px solid rgba(212,175,55,0.4)">£25pp</span>
+              </div>
+              <p class="opacity-60 text-sm mt-1">Six curated wines with our sommelier and paired small plates.</p>
+            </div>
+          </div>
+          <div class="event-card p-6 rounded-xl flex gap-6 items-start reveal"
+            style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
+            <div class="text-center w-14 flex-shrink-0">
+              <div class="text-3xl font-serif font-bold">28</div>
+              <div class="text-xs uppercase tracking-widest opacity-60">Mar</div>
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start">
+                <h3 class="text-xl font-serif">Cocktail Masterclass</h3><span
+                  class="text-xs px-3 py-1 rounded-full opacity-60"
+                  style="border: 1px solid rgba(212,175,55,0.4)">£40pp</span>
+              </div>
+              <p class="opacity-60 text-sm mt-1">Learn to mix three signature cocktails from our head bartender.</p>
+            </div>
+          </div>
+          <div class="event-card p-6 rounded-xl flex gap-6 items-start reveal"
+            style="border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.04);">
+            <div class="text-center w-14 flex-shrink-0">
+              <div class="text-3xl font-serif font-bold">04</div>
+              <div class="text-xs uppercase tracking-widest opacity-60">Apr</div>
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start">
+                <h3 class="text-xl font-serif">DJ Night</h3><span class="text-xs px-3 py-1 rounded-full opacity-60"
+                  style="border: 1px solid rgba(212,175,55,0.4)">Free</span>
+              </div>
+              <p class="opacity-60 text-sm mt-1">Local DJ spinning deep house from 9pm to midnight.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CONTACT ═══ -->
+  <div class="page-section" id="section-contact-full">
+    <div class="min-h-screen" style="background: #F5F5DC; color: #2D5A27; padding-top: 80px;">
+      <div class="container mx-auto px-8 py-16">
+        <div class="text-center mb-12 reveal">
+          <p class="text-xs uppercase tracking-widest mb-3 opacity-50">Get in Touch</p>
+          <h1 class="text-5xl font-serif mb-4">Contact</h1>
+        </div>
+        <div class="grid md:grid-cols-2 gap-16 max-w-5xl mx-auto">
+          <div class="reveal space-y-8">
+            <div>
+              <p class="text-xs uppercase tracking-widest opacity-50 mb-2">Address</p>
+              <p class="font-serif text-xl">123 Narrative Lane<br />Fiction District, AB1 2CD</p>
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-widest opacity-50 mb-2">Phone</p>
+              <p class="font-serif text-xl"><a href="tel:+442012345678" class="hover:opacity-60">+44 (0)20 1234 5678</a>
+              </p>
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-widest opacity-50 mb-2">Hours</p>
+              <p class="opacity-80">Cafe: Mon–Sun 07:00–16:00<br />Bar: Mon–Sun 17:00–01:00</p>
+            </div>
+            <div class="p-4 border-l-4 border-cafe-accent bg-cafe-mid/40 rounded-r">
+              <p class="text-sm">♿ <strong>Wheelchair accessible venue.</strong> Contact us for specific accessibility
+                requirements.</p>
+            </div>
+            <div class="flex gap-4">
+              <a href="#" class="text-sm font-bold border-b border-current pb-1 hover:opacity-50">Instagram</a>
+              <a href="#" class="text-sm font-bold border-b border-current pb-1 hover:opacity-50">Facebook</a>
+              <a href="#" class="text-sm font-bold border-b border-current pb-1 hover:opacity-50">Twitter</a>
+            </div>
+          </div>
+          <div class="reveal">
+            <form onsubmit="submitContact2(event)">
+              <div class="mb-5"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Name
+                  *</label><input class="form-field cafe-field" type="text" placeholder="Your name" required /></div>
+              <div class="mb-5"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Email
+                  *</label><input class="form-field cafe-field" type="email" placeholder="your@email.com" required />
+              </div>
+              <div class="mb-5"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Subject</label>
+                <select class="form-field cafe-field">
+                  <option>General Enquiry</option>
+                  <option>Catering / Events</option>
+                  <option>Table Booking (10+ guests)</option>
+                  <option>Newsletter Sign-up</option>
+                </select>
+              </div>
+              <div class="mb-8"><label class="block text-xs uppercase tracking-widest mb-2 opacity-60">Message
+                  *</label><textarea class="form-field cafe-field" rows="5" placeholder="How can we help?"
+                  required></textarea></div>
+              <button type="submit"
+                class="w-full py-4 bg-cafe-accent text-white font-bold uppercase tracking-widest text-sm hover:opacity-80 transition-opacity">Send
+                Message</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══ SPLIT SCREEN ═══
+    const cafeSide = document.getElementById('cafe-side');
+    const barSide = document.getElementById('bar-side');
+    const orCircle = document.getElementById('or-circle');
+    const nav = document.getElementById('main-nav');
+
+    function expandSide(side) {
+      if (!cafeSide || !barSide) return;
+      if (side === 'cafe') {
+        cafeSide.style.width = '62%'; barSide.style.width = '38%';
+        nav.style.color = '#2D5A27';
+        orCircle.style.transform = 'scale(1.2)';
+        orCircle.style.backgroundColor = '#2D5A27';
+        orCircle.style.color = '#F5F5DC';
+        orCircle.style.borderColor = '#F5F5DC';
+        orCircle.innerHTML = 'CAFE';
+      } else {
+        cafeSide.style.width = '38%'; barSide.style.width = '62%';
+        nav.style.color = '#D4AF37';
+        orCircle.style.transform = 'scale(1.2)';
+        orCircle.style.backgroundColor = '#D4AF37';
+        orCircle.style.color = '#0A1128';
+        orCircle.style.borderColor = '#0A1128';
+        orCircle.innerHTML = 'BAR';
+      }
     }
-  }
-  function resetSides() {
-    if (!cafeSide || !barSide) return;
-    cafeSide.style.width = '50%'; barSide.style.width = '50%';
-    nav.style.color = '#1a202c';
-    orCircle.style.transform = 'scale(1)';
-    orCircle.style.backgroundColor = 'white';
-    orCircle.style.color = 'black';
-    orCircle.style.borderColor = 'white';
-    orCircle.innerHTML = 'OR';
-  }
-
-  // ═══ SECTIONS ═══
-  function showSection(name) {
-    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-    document.getElementById('section-' + name).classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Update nav color based on section theme
-    if (['bar-full','reservations-full','events-full'].includes(name)) {
-      nav.style.background = 'rgba(10,17,40,0.95)';
-      nav.style.color = '#D4AF37';
-    } else {
-      nav.style.background = 'rgba(245,245,220,0.95)';
-      nav.style.color = '#2D5A27';
+    function resetSides() {
+      if (!cafeSide || !barSide) return;
+      cafeSide.style.width = '50%'; barSide.style.width = '50%';
+      nav.style.color = '#1a202c';
+      orCircle.style.transform = 'scale(1)';
+      orCircle.style.backgroundColor = 'white';
+      orCircle.style.color = 'black';
+      orCircle.style.borderColor = 'white';
+      orCircle.innerHTML = 'OR';
     }
-    setTimeout(triggerReveal, 100);
-  }
 
-  // ═══ MOBILE MENU ═══
-  document.getElementById('hamburger').addEventListener('click', () => document.getElementById('mobile-menu').classList.add('open'));
-  document.getElementById('close-menu').addEventListener('click', closeMob);
-  function closeMob() { document.getElementById('mobile-menu').classList.remove('open'); }
+    // ═══ SECTIONS ═══
+    function showSection(name) {
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('section-' + name).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Update nav color based on section theme
+      if (['bar-full', 'reservations-full', 'events-full'].includes(name)) {
+        nav.style.background = 'rgba(10,17,40,0.95)';
+        nav.style.color = '#D4AF37';
+      } else {
+        nav.style.background = 'rgba(245,245,220,0.95)';
+        nav.style.color = '#2D5A27';
+      }
+      setTimeout(triggerReveal, 100);
+    }
 
-  // ═══ MENU TABS ═══
-  function switchMenuTab2(tab) {
-    document.querySelectorAll('#section-menu-full .menu-tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('#section-menu-full .menu-tab-btn').forEach(b => { b.classList.add('opacity-50'); b.style.borderBottom = 'none'; });
-    document.getElementById('tab2-' + tab).classList.add('active');
-    event.target.classList.remove('opacity-50');
-    event.target.style.borderBottom = '2px solid #2D5A27';
-  }
+    // ═══ MOBILE MENU ═══
+    document.getElementById('hamburger').addEventListener('click', () => document.getElementById('mobile-menu').classList.add('open'));
+    document.getElementById('close-menu').addEventListener('click', closeMob);
+    function closeMob() { document.getElementById('mobile-menu').classList.remove('open'); }
 
-  // ═══ BOOKING ═══
-  function submitBooking2(e) {
-    e.preventDefault();
-    document.getElementById('booking-form2').style.display = 'none';
-    document.getElementById('booking-success2').classList.remove('hidden');
-  }
-  function resetBooking2() {
-    document.getElementById('booking-form2').style.display = 'block';
-    document.getElementById('booking-success2').classList.add('hidden');
-    document.getElementById('booking-form2').reset();
-  }
+    // ═══ MENU TABS ═══
+    function switchMenuTab2(tab) {
+      document.querySelectorAll('#section-menu-full .menu-tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('#section-menu-full .menu-tab-btn').forEach(b => { b.classList.add('opacity-50'); b.style.borderBottom = 'none'; });
+      document.getElementById('tab2-' + tab).classList.add('active');
+      event.target.classList.remove('opacity-50');
+      event.target.style.borderBottom = '2px solid #2D5A27';
+    }
 
-  // ═══ CONTACT ═══
-  function submitContact2(e) {
-    e.preventDefault();
-    alert('Message sent! We\'ll be in touch soon. ✉️');
-    e.target.reset();
-  }
+    // ═══ BOOKING ═══
+    function submitBooking2(e) {
+      e.preventDefault();
+      document.getElementById('booking-form2').style.display = 'none';
+      document.getElementById('booking-success2').classList.remove('hidden');
+    }
+    function resetBooking2() {
+      document.getElementById('booking-form2').style.display = 'block';
+      document.getElementById('booking-success2').classList.add('hidden');
+      document.getElementById('booking-form2').reset();
+    }
 
-  // ═══ REVEAL ═══
-  function triggerReveal() {
-    const reveals = document.querySelectorAll('.reveal:not(.visible)');
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-    }, { threshold: 0.1 });
-    reveals.forEach(r => obs.observe(r));
-  }
-  triggerReveal();
+    // ═══ CONTACT ═══
+    function submitContact2(e) {
+      e.preventDefault();
+      alert('Message sent! We\'ll be in touch soon. ✉️');
+      e.target.reset();
+    }
 
-  // Init nav
-  nav.style.background = 'rgba(245,245,220,0.8)';
-  nav.style.color = '#2D5A27';
-  nav.style.backdropFilter = 'blur(10px)';
-  nav.style.borderBottom = '1px solid rgba(45,90,39,0.15)';
-</script>
+    // ═══ REVEAL ═══
+    function triggerReveal() {
+      const reveals = document.querySelectorAll('.reveal:not(.visible)');
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+      }, { threshold: 0.1 });
+      reveals.forEach(r => obs.observe(r));
+    }
+    triggerReveal();
+
+    // Init nav
+    nav.style.background = 'rgba(245,245,220,0.8)';
+    nav.style.color = '#2D5A27';
+    nav.style.backdropFilter = 'blur(10px)';
+    nav.style.borderBottom = '1px solid rgba(45,90,39,0.15)';
+  </script>
 
 </body>
+
 </html>
