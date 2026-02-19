@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,9 +10,8 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── DARK THEME (default) ── */
-    :root,
-    [data-theme="dark"] {
+    /* ── THEME VARIABLES ── */
+    :root {
       --bg:           #08090f;
       --bg2:          #0c0d15;
       --surface:      #0f1018;
@@ -35,39 +34,26 @@
       --toggle-icon:  #f0ede8;
     }
 
-    /* ── LIGHT THEME ── */
-    [data-theme="light"] {
-      --bg:           #faf7f2;
-      --bg2:          #f4f0e8;
-      --surface:      #ffffff;
-      --surface2:     #f9f6f0;
-      --border:       rgba(0,0,0,0.08);
-      --border-hover: rgba(180,110,20,0.4);
-      --amber:        #b8780a;
-      --amber-lt:     #c8922a;
-      --violet:       #6344c8;
-      --text-1:       #1a1714;
-      --text-2:       #6b6560;
-      --text-3:       #a09890;
-      --glow-a:       rgba(200,146,42,0.08);
-      --glow-b:       rgba(124,92,228,0.06);
-      --overlay:      rgba(250,247,242,0.82);
-      --pill-bg:      rgba(0,0,0,0.04);
-      --tag-border:   rgba(0,0,0,0.08);
-      --footer-line:  rgba(0,0,0,0.07);
-      --toggle-bg:    rgba(0,0,0,0.06);
-      --toggle-icon:  #1a1714;
+    /* ── LIGHT SURFACE VARS (used in tile bodies) ── */
+    :root {
+      --surface-light:  #ffffff;
+      --surface2-light: #f9f6f0;
+      --text-1-light:   #1a1714;
+      --text-2-light:   #6b6560;
+      --text-3-light:   #a09890;
+      --border-light:   rgba(0,0,0,0.08);
+      --tag-border-light: rgba(0,0,0,0.08);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--bg);
-      color: var(--text-1);
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
-      transition: background 0.4s ease, color 0.4s ease;
+      /* Always-on split: left half cream/light, right half dark navy */
+      background: linear-gradient(to right, #faf7f2 50%, #08090f 50%);
+      color: var(--text-1);
     }
 
     /* ── ambient glows ── */
@@ -76,54 +62,25 @@
       border-radius: 50%;
       pointer-events: none;
       z-index: 0;
-      transition: background 0.4s ease;
     }
     .glow-a {
       width: 700px; height: 700px;
       top: -250px; left: -200px;
-      background: radial-gradient(circle, var(--glow-a) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(200,146,42,0.10) 0%, transparent 70%);
     }
     .glow-b {
       width: 600px; height: 600px;
       bottom: -200px; right: -150px;
-      background: radial-gradient(circle, var(--glow-b) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(124,92,228,0.10) 0%, transparent 70%);
     }
 
-    /* ── THEME TOGGLE ── */
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 24px;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--toggle-bg);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 6px 14px 6px 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .theme-toggle:hover {
-      border-color: var(--border-hover);
-      background: rgba(200,146,42,0.08);
-    }
-    .theme-toggle svg {
-      width: 14px; height: 14px;
-      fill: var(--toggle-icon);
-      transition: fill 0.3s ease;
-    }
-    .theme-toggle-label {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-2);
-      transition: color 0.3s ease;
+    /* ── HEADER BAND ── covers split bg with a centred dark overlay ── */
+    .header-band {
+      position: relative;
+      z-index: 10;
+      background: rgba(8,9,15,0.82);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
     /* ── HEADER ── */
@@ -132,7 +89,10 @@
       z-index: 10;
       text-align: center;
       padding: 72px 24px 52px;
+      color: #f0ede8;
     }
+    .header .hero-title { color: #f0ede8; }
+    .header .hero-sub   { color: #9a9590; }
 
     .eyebrow {
       display: flex;
@@ -215,7 +175,7 @@
       z-index: 10;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
+      gap: 24px;
       max-width: 1400px;
       margin: 0 auto;
       padding: 0 24px 80px;
@@ -229,15 +189,18 @@
       display: block;
       text-decoration: none;
       color: inherit;
-      background: var(--surface);
+      background: #ffffff;
       overflow: hidden;
       cursor: pointer;
-      border: 1px solid var(--border);
-      transition: border-color 0.35s ease, box-shadow 0.35s ease, background 0.4s ease;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
     }
     .tile:hover {
-      border-color: var(--border-hover);
-      box-shadow: 0 8px 40px rgba(200,146,42,0.12);
+      border-color: rgba(200,146,42,0.4);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.14);
+      transform: translateY(-4px);
     }
 
     /* colour swatch strip */
@@ -299,9 +262,8 @@
     /* tile body */
     .tile-body {
       padding: 20px 22px 24px;
-      border-top: 1px solid var(--border);
-      background: var(--surface);
-      transition: background 0.4s ease;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      background: #ffffff;
     }
     .tile-meta {
       display: flex;
@@ -314,7 +276,7 @@
       font-size: 10px;
       font-weight: 500;
       letter-spacing: 0.16em;
-      color: var(--text-3);
+      color: #a09890;
     }
     .tile-accent-dot {
       width: 6px; height: 6px;
@@ -324,18 +286,16 @@
       font-family: 'Playfair Display', serif;
       font-size: 20px;
       font-weight: 400;
-      color: var(--text-1);
+      color: #1a1714;
       margin-bottom: 8px;
       line-height: 1.2;
-      transition: color 0.4s ease;
     }
     .tile-desc {
       font-size: 12px;
       font-weight: 300;
-      color: var(--text-2);
+      color: #6b6560;
       line-height: 1.65;
       margin-bottom: 14px;
-      transition: color 0.4s ease;
     }
     .tile-tags {
       display: flex;
@@ -348,38 +308,13 @@
       font-weight: 500;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--text-3);
-      border: 1px solid var(--tag-border);
+      color: #a09890;
+      border: 1px solid rgba(0,0,0,0.08);
       border-radius: 2px;
       padding: 3px 8px;
-      transition: all 0.3s ease;
     }
 
-    /* ── DIVIDER ── */
-    .section-divider {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      padding: 0 24px 40px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    .divider-line {
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-    .divider-text {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--text-3);
-    }
+
 
     /* ── FOOTER ── */
     .footer {
@@ -387,19 +322,19 @@
       z-index: 10;
       text-align: center;
       padding: 32px 24px 52px;
-      border-top: 1px solid var(--footer-line);
-      transition: border-color 0.4s ease;
+      background: rgba(8,9,15,0.88);
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
     .footer-brand {
       font-family: 'Playfair Display', serif;
       font-size: 13px;
-      color: var(--text-3);
+      color: rgba(255,255,255,0.35);
       letter-spacing: 0.04em;
     }
-    .footer-brand span { color: var(--amber); }
+    .footer-brand span { color: #c8922a; }
     .footer-sub {
       font-size: 11px;
-      color: var(--text-3);
+      color: rgba(255,255,255,0.2);
       margin-top: 6px;
       letter-spacing: 0.08em;
     }
@@ -411,19 +346,10 @@
   <div class="glow-a"></div>
   <div class="glow-b"></div>
 
-  <!-- THEME TOGGLE -->
-  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" id="themeBtn">
-    <!-- Moon icon (shown in dark mode) -->
-    <svg id="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-    </svg>
-    <!-- Sun icon (shown in light mode, hidden by default) -->
-    <svg id="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none">
-      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3" stroke-width="2" stroke="currentColor"/><line x1="12" y1="21" x2="12" y2="23" stroke-width="2" stroke="currentColor"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke-width="2" stroke="currentColor"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke-width="2" stroke="currentColor"/><line x1="1" y1="12" x2="3" y2="12" stroke-width="2" stroke="currentColor"/><line x1="21" y1="12" x2="23" y2="12" stroke-width="2" stroke="currentColor"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke-width="2" stroke="currentColor"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke-width="2" stroke="currentColor"/>
-    </svg>
-    <span class="theme-toggle-label" id="themeLabel">Night</span>
-  </button>
 
+
+  <!-- HEADER BAND -->
+  <div class="header-band">
   <!-- HEADER -->
   <header class="header">
     <div class="eyebrow">
@@ -441,8 +367,8 @@
     </div>
   </header>
 
-  <!-- GRID -->
-  <main class="grid">
+  </header>
+  <!-- GRID --><main class="grid">
 
     <!-- 01 Dusk & Dawn -->
     <a class="tile" href="dawn&dusk.html">
@@ -608,22 +534,14 @@
 
   </main>
 
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-brand">Crafted by <span>VendhanInfotech</span></div>
     <div class="footer-sub">All prototypes are fully interactive &middot; Click any tile to explore</div>
   </footer>
 
-  <script>
-    function toggleTheme() {
-      const html = document.documentElement;
-      const isDark = html.getAttribute('data-theme') === 'dark';
-      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-      document.getElementById('icon-moon').style.display = isDark ? 'none' : 'block';
-      document.getElementById('icon-sun').style.display  = isDark ? 'block' : 'none';
-      document.getElementById('themeLabel').textContent  = isDark ? 'Day' : 'Night';
-    }
-  </script>
+
 
 </body>
 </html>
