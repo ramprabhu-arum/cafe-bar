@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Pragmatist | Cafe & Bar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          brand: { light: '#ffffff', dark: '#1a1a1a', accent: '#3b82f6', cafeAccent: '#f59e0b', barAccent: '#6366f1' }
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { transition: background-color 0.3s ease, color 0.3s ease; }
+
+  /* Page sections */
+  .page-section { display: none; }
+  .page-section.active { display: block; }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* Menu tabs */
+  .menu-tab-content { display: none; }
+  .menu-tab-content.active { display: block; }
+
+  /* Mobile menu */
+  #mobile-nav-drawer { display: none; }
+  #mobile-nav-drawer.open { display: flex; }
+
+  /* Custom focus */
+  input:focus, select:focus, textarea:focus { outline: 2px solid #3b82f6; outline-offset: 1px; }
+  .dark input:focus, .dark select:focus, .dark textarea:focus { outline-color: #6366f1; }
+
+  /* Nav active indicator */
+  .nav-active { border-bottom: 2px solid; }
+
+  /* Event hover */
+  .event-row { transition: background 0.2s; }
+
+  /* Input base */
+  .prag-input {
+    width: 100%; padding: 0.65rem 0.9rem;
+    border: 1px solid; border-radius: 0.25rem;
+    background: transparent; font-size: 0.9rem;
+    font-family: inherit; transition: border-color 0.2s;
+  }
+  .light-input { border-color: #e2e8f0; color: #0f172a; }
+  .light-input:focus { border-color: #f59e0b; }
+  .dark-input { border-color: #3f3f46; color: #f4f4f5; }
+  .dark-input:focus { border-color: #6366f1; }
+  select option { color: #0f172a; }
+</style>
+</head>
+
+<body class="bg-white text-slate-900 font-sans transition-colors duration-300" id="app">
+
+<!-- ═══ STICKY HEADER ═══ -->
+<header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm transition-colors" id="main-header">
+  <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+    <!-- Logo -->
+    <button class="text-xl font-black tracking-tighter uppercase hover:opacity-70 transition-opacity" onclick="showSection('landing')">
+      The <span class="text-brand-cafeAccent dark:text-brand-barAccent">Pragmatist</span>
+    </button>
+
+    <!-- Desktop Nav -->
+    <nav class="hidden md:flex items-center gap-1 text-sm font-medium" id="desktop-nav">
+      <button onclick="showSection('landing')" class="nav-btn px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Home</button>
+      <button onclick="showSection('cafe')" class="nav-btn px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Cafe</button>
+      <button onclick="showSection('bar')" class="nav-btn px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Bar</button>
+      <button onclick="showSection('menus')" class="nav-btn px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Menus</button>
+      <button onclick="showSection('booking')" class="nav-btn px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Booking</button>
+      <button onclick="showSection('events')" class="nav-btn px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Events</button>
+      <button onclick="showSection('contact')" class="nav-btn px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Contact</button>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <!-- Theme Toggle -->
+      <button aria-label="Toggle light/dark mode" class="p-2 rounded-full bg-slate-100 dark:bg-zinc-800 hover:ring-2 ring-slate-300 dark:ring-zinc-600 focus:outline-none transition-all" id="theme-toggle" onclick="toggleTheme()">
+        <svg class="hidden w-5 h-5 text-yellow-400" fill="currentColor" id="sun-icon" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
+        <svg class="w-5 h-5 text-slate-600 dark:text-zinc-400" fill="currentColor" id="moon-icon" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+      </button>
+      <!-- Book Now -->
+      <button onclick="showSection('booking')" class="hidden sm:inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium text-sm transition-colors">Book Now</button>
+      <!-- Mobile hamburger -->
+      <button class="md:hidden p-2" id="mob-hamburger" aria-label="Open menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE DRAWER -->
+<div class="fixed inset-0 z-[300] flex-col bg-white dark:bg-zinc-900 pt-20 px-6 gap-2" id="mobile-nav-drawer">
+  <button class="absolute top-5 right-5 p-2 text-slate-500" id="close-mob-menu">✕</button>
+  <button onclick="showSection('landing'); closeMobMenu()" class="text-left py-4 border-b border-slate-100 dark:border-zinc-800 font-semibold text-lg">Home</button>
+  <button onclick="showSection('cafe'); closeMobMenu()" class="text-left py-4 border-b border-slate-100 dark:border-zinc-800 font-semibold text-lg">Cafe</button>
+  <button onclick="showSection('bar'); closeMobMenu()" class="text-left py-4 border-b border-slate-100 dark:border-zinc-800 font-semibold text-lg">Bar</button>
+  <button onclick="showSection('menus'); closeMobMenu()" class="text-left py-4 border-b border-slate-100 dark:border-zinc-800 font-semibold text-lg">Menus</button>
+  <button onclick="showSection('booking'); closeMobMenu()" class="text-left py-4 border-b border-slate-100 dark:border-zinc-800 font-semibold text-lg">Booking</button>
+  <button onclick="showSection('events'); closeMobMenu()" class="text-left py-4 border-b border-slate-100 dark:border-zinc-800 font-semibold text-lg">Events</button>
+  <button onclick="showSection('contact'); closeMobMenu()" class="text-left py-4 font-semibold text-lg">Contact</button>
+</div>
+
+<!-- ══════════════════════════════ LANDING ══════════════════════════════ -->
+<div class="page-section active" id="section-landing">
+  <main class="container mx-auto px-4 py-8">
+
+    <!-- Hero choice grid -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+      <!-- Cafe -->
+      <div class="relative group overflow-hidden rounded-xl bg-amber-50 dark:bg-zinc-800 flex flex-col items-center justify-center p-8 min-h-[320px] border-2 border-transparent hover:border-amber-300 dark:hover:border-amber-500 transition-all cursor-pointer" onclick="showSection('cafe')">
+        <img alt="Cafe" class="absolute inset-0 w-full h-full object-cover opacity-15 group-hover:opacity-25 transition-opacity" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=1200"/>
+        <div class="relative z-10 text-center">
+          <div class="inline-block px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-bold uppercase tracking-widest rounded-full mb-4">Cafe • 07:00–16:00</div>
+          <h2 class="text-4xl font-black mb-3 text-slate-900 dark:text-zinc-100">THE CAFE</h2>
+          <p class="mb-6 text-slate-500 dark:text-zinc-400 text-sm max-w-xs">Specialty coffee, fresh pastries & quiet workspaces. Your perfect morning.</p>
+          <span class="inline-block bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold py-3 px-10 rounded text-sm uppercase tracking-wider group-hover:bg-amber-500 group-hover:text-white dark:group-hover:bg-amber-500 transition-colors">Enter Cafe →</span>
+        </div>
+      </div>
+      <!-- Bar -->
+      <div class="relative group overflow-hidden rounded-xl bg-slate-900 dark:bg-zinc-950 flex flex-col items-center justify-center p-8 min-h-[320px] border-2 border-transparent hover:border-indigo-500 transition-all cursor-pointer" onclick="showSection('bar')">
+        <img alt="Bar" class="absolute inset-0 w-full h-full object-cover opacity-25 group-hover:opacity-40 transition-opacity" src="https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&q=80&w=1200"/>
+        <div class="relative z-10 text-center text-white">
+          <div class="inline-block px-3 py-1 bg-indigo-900/60 text-indigo-300 text-xs font-bold uppercase tracking-widest rounded-full mb-4">Bar • 17:00–01:00</div>
+          <h2 class="text-4xl font-black mb-3">THE BAR</h2>
+          <p class="mb-6 text-zinc-400 text-sm max-w-xs">Craft cocktails, curated wines & late night vibes. Your perfect evening.</p>
+          <span class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-10 rounded text-sm uppercase tracking-wider transition-colors">Enter Bar →</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Links -->
+    <section class="mb-10">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <button onclick="showSection('menus')" class="flex flex-col items-center p-5 bg-slate-50 dark:bg-zinc-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400">
+          <svg class="w-7 h-7 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          <span class="font-bold text-xs uppercase tracking-wide">Menus</span>
+        </button>
+        <button onclick="showSection('booking')" class="flex flex-col items-center p-5 bg-slate-50 dark:bg-zinc-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400">
+          <svg class="w-7 h-7 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          <span class="font-bold text-xs uppercase tracking-wide">Booking</span>
+        </button>
+        <button onclick="showSection('events')" class="flex flex-col items-center p-5 bg-slate-50 dark:bg-zinc-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400">
+          <svg class="w-7 h-7 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          <span class="font-bold text-xs uppercase tracking-wide">Events</span>
+        </button>
+        <button onclick="showSection('contact')" class="flex flex-col items-center p-5 bg-slate-50 dark:bg-zinc-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400">
+          <svg class="w-7 h-7 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          <span class="font-bold text-xs uppercase tracking-wide">Contact</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Info Grid -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+      <!-- Hours -->
+      <div class="p-6 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700">
+        <h3 class="text-base font-bold mb-4 pb-2 border-b border-slate-200 dark:border-zinc-700">Hours of Operation</h3>
+        <dl class="space-y-2 text-sm">
+          <div class="flex justify-between items-center"><dt class="font-semibold">Mon – Thu</dt><dd class="text-slate-500 dark:text-zinc-400">07:00 – 00:00</dd></div>
+          <div class="flex justify-between items-center"><dt class="font-semibold">Fri – Sat</dt><dd class="text-slate-500 dark:text-zinc-400">07:00 – 02:00</dd></div>
+          <div class="flex justify-between items-center"><dt class="font-semibold">Sunday</dt><dd class="text-slate-500 dark:text-zinc-400">09:00 – 22:00</dd></div>
+        </dl>
+        <p class="mt-4 text-xs text-slate-400 dark:text-zinc-500">*Kitchen closes 1 hour before bar closing.</p>
+      </div>
+      <!-- Location -->
+      <div class="lg:col-span-2 p-6 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700">
+        <h3 class="text-base font-bold mb-4 pb-2 border-b border-slate-200 dark:border-zinc-700">Find Us</h3>
+        <div class="flex flex-col md:flex-row gap-6">
+          <div class="flex-1">
+            <p class="font-bold mb-1">The Pragmatist</p>
+            <address class="not-italic text-sm text-slate-500 dark:text-zinc-400 leading-relaxed">
+              123 Functional Avenue<br/>Utility District, AB1 2CD<br/>
+              <a class="text-blue-600 hover:underline mt-1 inline-block" href="tel:+442012345678">+44 (0)20 1234 5678</a>
+            </address>
+            <div class="mt-3 inline-flex items-center gap-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-medium">
+              <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Open Now
+            </div>
+          </div>
+          <div class="flex-1 min-h-[120px] rounded-lg overflow-hidden bg-slate-200 dark:bg-zinc-700 flex items-center justify-center text-slate-400 text-xs uppercase tracking-widest">
+            [ Map Placeholder ]
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 dark:border-zinc-800 py-10 bg-white dark:bg-zinc-950">
+    <div class="container mx-auto px-4 text-center">
+      <div class="flex justify-center gap-6 mb-6 text-sm">
+        <a href="#" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Instagram</a>
+        <a href="#" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Facebook</a>
+        <a href="#" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Twitter</a>
+      </div>
+      <p class="text-xs text-slate-400">© 2026 The Pragmatist. Efficiently serving since dawn.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════ CAFE PAGE ══════════════════════════════ -->
+<div class="page-section" id="section-cafe">
+  <main class="container mx-auto px-4 py-10">
+    <!-- Cafe Hero -->
+    <div class="relative rounded-2xl overflow-hidden mb-10 min-h-[280px] flex items-end">
+      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=1600" class="absolute inset-0 w-full h-full object-cover" alt="Cafe"/>
+      <div class="absolute inset-0 bg-gradient-to-t from-white/90 via-white/30 to-transparent dark:from-zinc-900/90"></div>
+      <div class="relative z-10 p-8">
+        <span class="inline-block bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-3">Open 07:00 – 16:00</span>
+        <h1 class="text-5xl font-black tracking-tight mb-2">The Cafe</h1>
+        <p class="text-slate-600 dark:text-zinc-400 max-w-md">Where mornings are rituals and afternoons linger pleasantly.</p>
+        <div class="flex gap-3 mt-5 flex-wrap">
+          <button onclick="showSection('menus')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-6 rounded text-sm uppercase tracking-wide transition-colors">View Menu</button>
+          <button onclick="showSection('contact')" class="bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 font-bold py-2.5 px-6 rounded text-sm uppercase tracking-wide transition-colors">Catering Enquiry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 reveal">
+      <div class="p-6 bg-amber-50 dark:bg-zinc-800 rounded-xl border border-amber-100 dark:border-zinc-700">
+        <div class="text-2xl mb-3">☕</div>
+        <h3 class="font-bold mb-2">Specialty Coffee</h3>
+        <p class="text-sm text-slate-500 dark:text-zinc-400">Single-origin beans, precision brewing, milk steamed to perfection. From espresso to pour-over.</p>
+      </div>
+      <div class="p-6 bg-amber-50 dark:bg-zinc-800 rounded-xl border border-amber-100 dark:border-zinc-700">
+        <div class="text-2xl mb-3">🥐</div>
+        <h3 class="font-bold mb-2">Fresh Kitchen</h3>
+        <p class="text-sm text-slate-500 dark:text-zinc-400">All pastries and food made in-house daily. Seasonal specials change every week.</p>
+      </div>
+      <div class="p-6 bg-amber-50 dark:bg-zinc-800 rounded-xl border border-amber-100 dark:border-zinc-700">
+        <div class="text-2xl mb-3">🌿</div>
+        <h3 class="font-bold mb-2">Sustainably Sourced</h3>
+        <p class="text-sm text-slate-500 dark:text-zinc-400">Local farms, ethical suppliers. Every ingredient chosen with care.</p>
+      </div>
+    </div>
+
+    <!-- Ordering Options -->
+    <div class="bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 p-6 reveal">
+      <h3 class="font-bold text-lg mb-5">Order & Delivery</h3>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="p-4 bg-white dark:bg-zinc-900 rounded-lg border border-slate-200 dark:border-zinc-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors">
+          <div class="text-xl mb-2">✉️</div>
+          <h4 class="font-bold text-sm mb-1">Catering Enquiry</h4>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mb-3">For events and group orders. Custom menu available.</p>
+          <button onclick="showSection('contact')" class="text-xs font-bold text-blue-600 hover:underline">Get in Touch →</button>
+        </div>
+        <div class="p-4 bg-white dark:bg-zinc-900 rounded-lg border border-slate-200 dark:border-zinc-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors">
+          <div class="text-xl mb-2">🛒</div>
+          <h4 class="font-bold text-sm mb-1">Order Online</h4>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mb-3">Collection or local delivery. Minimum 2 hour notice.</p>
+          <button onclick="showSection('menus')" class="text-xs font-bold text-blue-600 hover:underline">Browse Menu →</button>
+        </div>
+        <div class="p-4 bg-white dark:bg-zinc-900 rounded-lg border border-slate-200 dark:border-zinc-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors">
+          <div class="text-xl mb-2">🛵</div>
+          <h4 class="font-bold text-sm mb-1">Delivery Apps</h4>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mb-3">Find us on Deliveroo and Just Eat for fast delivery.</p>
+          <div class="flex gap-2 flex-wrap"><a href="#" class="text-xs font-bold text-blue-600 hover:underline">Deliveroo</a><span class="text-slate-300">·</span><a href="#" class="text-xs font-bold text-blue-600 hover:underline">Just Eat</a></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════ BAR PAGE ══════════════════════════════ -->
+<div class="page-section" id="section-bar">
+  <main class="container mx-auto px-4 py-10">
+    <!-- Bar Hero -->
+    <div class="relative rounded-2xl overflow-hidden mb-10 min-h-[280px] flex items-end">
+      <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=1600" class="absolute inset-0 w-full h-full object-cover" alt="Bar"/>
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-transparent"></div>
+      <div class="relative z-10 p-8 text-white">
+        <span class="inline-block bg-indigo-900/60 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-3">Open 17:00 – 01:00</span>
+        <h1 class="text-5xl font-black tracking-tight mb-2">The Bar</h1>
+        <p class="text-zinc-300 max-w-md">Craft cocktails, curated wines & an atmosphere that rewards those who stay.</p>
+        <div class="flex gap-3 mt-5 flex-wrap">
+          <button onclick="showSection('booking')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-6 rounded text-sm uppercase tracking-wide transition-colors">Book a Table</button>
+          <button onclick="showSection('menus')" class="bg-white/10 hover:bg-white/20 text-white font-bold py-2.5 px-6 rounded text-sm uppercase tracking-wide transition-colors">Drinks Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Features -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 reveal">
+      <div class="p-6 bg-slate-900 dark:bg-zinc-950 rounded-xl border border-slate-700 text-white">
+        <div class="text-2xl mb-3">🍸</div>
+        <h3 class="font-bold mb-2">Craft Cocktails</h3>
+        <p class="text-sm text-zinc-400">Seasonal menus, classic standards, and off-menu creations. Ask your bartender.</p>
+      </div>
+      <div class="p-6 bg-slate-900 dark:bg-zinc-950 rounded-xl border border-slate-700 text-white">
+        <div class="text-2xl mb-3">🎵</div>
+        <h3 class="font-bold mb-2">Live Music</h3>
+        <p class="text-sm text-zinc-400">Weekly jazz nights, acoustic sessions, and curated DJ sets. Check events.</p>
+      </div>
+      <div class="p-6 bg-slate-900 dark:bg-zinc-950 rounded-xl border border-slate-700 text-white">
+        <div class="text-2xl mb-3">📅</div>
+        <h3 class="font-bold mb-2">Easy Booking</h3>
+        <p class="text-sm text-zinc-400 mb-3">No deposit. Free cancellation 24hrs prior. Online or by phone.</p>
+        <button onclick="showSection('booking')" class="text-xs font-bold text-indigo-400 hover:underline">Reserve Now →</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════ MENUS ══════════════════════════════ -->
+<div class="page-section" id="section-menus">
+  <main class="container mx-auto px-4 py-10">
+    <h1 class="text-3xl font-black tracking-tight mb-2">Menus</h1>
+    <p class="text-slate-500 dark:text-zinc-400 mb-8 text-sm">All items freshly prepared. Menu subject to seasonal changes.</p>
+
+    <!-- Menu Tabs -->
+    <div class="flex flex-wrap gap-1 mb-8 p-1 bg-slate-100 dark:bg-zinc-800 rounded-lg w-fit">
+      <button class="menu-tab-btn px-4 py-2 rounded-md text-sm font-bold bg-white dark:bg-zinc-700 shadow-sm" onclick="switchPragTab('cafe-food', this)">☕ Cafe Food</button>
+      <button class="menu-tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200" onclick="switchPragTab('cafe-drinks', this)">🥤 Cafe Drinks</button>
+      <button class="menu-tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200" onclick="switchPragTab('bar-cocktails', this)">🍸 Cocktails</button>
+      <button class="menu-tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200" onclick="switchPragTab('bar-wines', this)">🍷 Wine & Beer</button>
+    </div>
+
+    <div class="menu-tab-content active" id="ptab-cafe-food">
+      <div class="grid md:grid-cols-2 gap-x-12 gap-y-0 max-w-4xl">
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Avocado Toast</div><div class="text-xs text-slate-400 mt-0.5">Sourdough, poached egg, chilli flakes</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£9.50</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Granola Bowl</div><div class="text-xs text-slate-400 mt-0.5">House granola, seasonal fruit, yoghurt</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£8.00</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">BLT Sandwich</div><div class="text-xs text-slate-400 mt-0.5">Smoked bacon, lettuce, tomato, aioli</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£10.00</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Banana Bread</div><div class="text-xs text-slate-400 mt-0.5">Served warm, salted butter</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£4.50</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Cheese Toastie</div><div class="text-xs text-slate-400 mt-0.5">Mature cheddar, house pickles</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£8.50</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Eggs Benedict</div><div class="text-xs text-slate-400 mt-0.5">English muffin, ham hock, hollandaise</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£12.00</div></div>
+      </div>
+    </div>
+    <div class="menu-tab-content" id="ptab-cafe-drinks">
+      <div class="grid md:grid-cols-2 gap-x-12 gap-y-0 max-w-4xl">
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Flat White</div><div class="text-xs text-slate-400 mt-0.5">Double shot, steamed milk</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£3.80</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Oat Latte</div><div class="text-xs text-slate-400 mt-0.5">Seasonal blend, oat milk</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£4.20</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Filter Coffee</div><div class="text-xs text-slate-400 mt-0.5">Single origin, daily rotation</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£3.20</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Matcha Latte</div><div class="text-xs text-slate-400 mt-0.5">Ceremonial grade matcha</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£4.50</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Fresh Juice</div><div class="text-xs text-slate-400 mt-0.5">Seasonal fruits</div></div><div class="font-bold text-amber-600 ml-4 flex-shrink-0 text-sm">£4.00</div></div>
+      </div>
+    </div>
+    <div class="menu-tab-content" id="ptab-bar-cocktails">
+      <div class="grid md:grid-cols-2 gap-x-12 gap-y-0 max-w-4xl">
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Negroni</div><div class="text-xs text-slate-400 mt-0.5">Gin, Campari, sweet vermouth</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">£12</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Espresso Martini</div><div class="text-xs text-slate-400 mt-0.5">Vodka, Kahlúa, fresh espresso</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">£13</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Aperol Spritz</div><div class="text-xs text-slate-400 mt-0.5">Aperol, Prosecco, orange</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">£11</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Old Fashioned</div><div class="text-xs text-slate-400 mt-0.5">Bourbon, bitters, orange peel</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">£14</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">House Signature</div><div class="text-xs text-slate-400 mt-0.5">Ask your bartender</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">£15</div></div>
+      </div>
+    </div>
+    <div class="menu-tab-content" id="ptab-bar-wines">
+      <div class="grid md:grid-cols-2 gap-x-12 gap-y-0 max-w-4xl">
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">House Red</div><div class="text-xs text-slate-400 mt-0.5">175ml / Bottle</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">£8 / £32</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">House White</div><div class="text-xs text-slate-400 mt-0.5">175ml / Bottle</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">£8 / £32</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Prosecco</div><div class="text-xs text-slate-400 mt-0.5">125ml / Bottle</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">£9 / £38</div></div>
+        <div class="flex justify-between py-4 border-b border-slate-100 dark:border-zinc-800"><div><div class="font-semibold text-sm">Craft Lager</div><div class="text-xs text-slate-400 mt-0.5">Rotating local brewery</div></div><div class="font-bold text-indigo-500 ml-4 flex-shrink-0 text-sm">from £6</div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════ BOOKING ══════════════════════════════ -->
+<div class="page-section" id="section-booking">
+  <main class="container mx-auto px-4 py-10 max-w-2xl">
+    <h1 class="text-3xl font-black tracking-tight mb-1">Book a Table</h1>
+    <p class="text-slate-500 dark:text-zinc-400 mb-8 text-sm">No deposit required. Cancel up to 24 hours before your reservation.</p>
+
+    <div class="bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 p-6 md:p-8">
+      <form id="prag-booking-form" onsubmit="submitPragBooking(event)">
+        <div class="grid md:grid-cols-2 gap-5 mb-5">
+          <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">First Name *</label><input class="prag-input light-input dark:dark-input" type="text" placeholder="First name" required/></div>
+          <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Last Name *</label><input class="prag-input light-input dark:dark-input" type="text" placeholder="Last name" required/></div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-5 mb-5">
+          <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Email *</label><input class="prag-input light-input dark:dark-input" type="email" placeholder="your@email.com" required/></div>
+          <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Phone</label><input class="prag-input light-input dark:dark-input" type="tel" placeholder="+44..."/></div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-5 mb-5">
+          <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Date *</label><input class="prag-input light-input dark:dark-input" type="date" required/></div>
+          <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Time *</label>
+            <select class="prag-input light-input dark:dark-input" required>
+              <option value="">Select</option>
+              <option>17:00</option><option>18:00</option><option>19:00</option><option>20:00</option><option>21:00</option>
+            </select>
+          </div>
+          <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Guests *</label>
+            <select class="prag-input light-input dark:dark-input" required>
+              <option value="">Select</option>
+              <option>1-2</option><option>3-4</option><option>5-6</option><option>7-9</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-6"><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Special Requirements</label><textarea class="prag-input light-input dark:dark-input" rows="3" placeholder="Dietary needs, accessibility, occasion notes..."></textarea></div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded text-sm uppercase tracking-widest transition-colors">Confirm Reservation</button>
+        <p class="text-center text-xs text-slate-400 mt-3">No deposit required · Free cancellation 24hrs prior</p>
+      </form>
+      <div class="text-center py-10 hidden" id="prag-booking-success">
+        <div class="text-4xl mb-3">✅</div>
+        <h3 class="text-xl font-black mb-1">Booking Confirmed!</h3>
+        <p class="text-sm text-slate-500 dark:text-zinc-400">Confirmation sent to your email. We look forward to seeing you.</p>
+        <button onclick="resetPragBooking()" class="mt-5 px-5 py-2 border border-slate-300 dark:border-zinc-600 rounded text-sm hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">Make Another Booking</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════ EVENTS ══════════════════════════════ -->
+<div class="page-section" id="section-events">
+  <main class="container mx-auto px-4 py-10">
+    <h1 class="text-3xl font-black tracking-tight mb-1">Events</h1>
+    <p class="text-slate-500 dark:text-zinc-400 mb-8 text-sm">Join us for special nights, tastings, and live performances.</p>
+    <div class="max-w-3xl space-y-3">
+      <div class="event-row flex gap-5 items-center p-5 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-600 cursor-pointer">
+        <div class="text-center w-14 flex-shrink-0"><div class="text-2xl font-black text-indigo-600 dark:text-indigo-400">15</div><div class="text-xs text-slate-400 uppercase tracking-wide">Mar</div></div>
+        <div class="flex-1 min-w-0"><div class="flex justify-between items-center gap-3"><h3 class="font-bold">Jazz Night</h3><span class="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">Free</span></div><p class="text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Live jazz trio from 8pm. Free entry for all guests.</p></div>
+      </div>
+      <div class="event-row flex gap-5 items-center p-5 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-600 cursor-pointer">
+        <div class="text-center w-14 flex-shrink-0"><div class="text-2xl font-black text-indigo-600 dark:text-indigo-400">22</div><div class="text-xs text-slate-400 uppercase tracking-wide">Mar</div></div>
+        <div class="flex-1 min-w-0"><div class="flex justify-between items-center gap-3"><h3 class="font-bold">Wine Tasting Evening</h3><span class="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">£25pp</span></div><p class="text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Six curated wines with our sommelier and paired small plates.</p></div>
+      </div>
+      <div class="event-row flex gap-5 items-center p-5 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-600 cursor-pointer">
+        <div class="text-center w-14 flex-shrink-0"><div class="text-2xl font-black text-indigo-600 dark:text-indigo-400">28</div><div class="text-xs text-slate-400 uppercase tracking-wide">Mar</div></div>
+        <div class="flex-1 min-w-0"><div class="flex justify-between items-center gap-3"><h3 class="font-bold">Cocktail Masterclass</h3><span class="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">£40pp</span></div><p class="text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Learn to mix three signature cocktails from our head bartender.</p></div>
+      </div>
+      <div class="event-row flex gap-5 items-center p-5 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-600 cursor-pointer">
+        <div class="text-center w-14 flex-shrink-0"><div class="text-2xl font-black text-indigo-600 dark:text-indigo-400">04</div><div class="text-xs text-slate-400 uppercase tracking-wide">Apr</div></div>
+        <div class="flex-1 min-w-0"><div class="flex justify-between items-center gap-3"><h3 class="font-bold">DJ Night</h3><span class="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">Free</span></div><p class="text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Local DJ spinning deep house and soul from 9pm to midnight.</p></div>
+      </div>
+    </div>
+    <div class="mt-8">
+      <p class="text-sm text-slate-500 dark:text-zinc-400 mb-3">Want to stay updated on events?</p>
+      <button onclick="showSection('contact')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded text-sm uppercase tracking-wide transition-colors">Subscribe to Newsletter</button>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════ CONTACT ══════════════════════════════ -->
+<div class="page-section" id="section-contact">
+  <main class="container mx-auto px-4 py-10">
+    <h1 class="text-3xl font-black tracking-tight mb-1">Contact</h1>
+    <p class="text-slate-500 dark:text-zinc-400 mb-8 text-sm">Get in touch with us for any enquiries, bookings, or feedback.</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-5xl">
+      <!-- Info -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="p-5 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700">
+          <h3 class="font-bold mb-4">Location & Hours</h3>
+          <address class="not-italic text-sm text-slate-600 dark:text-zinc-400 space-y-2">
+            <div>📍 123 Functional Avenue, Utility District, AB1 2CD</div>
+            <div>📞 <a href="tel:+442012345678" class="text-blue-600 hover:underline">+44 (0)20 1234 5678</a></div>
+            <div>✉️ <a href="mailto:hello@pragmatist.co" class="text-blue-600 hover:underline">hello@pragmatist.co</a></div>
+          </address>
+          <div class="mt-4 pt-4 border-t border-slate-200 dark:border-zinc-700 text-sm text-slate-500 dark:text-zinc-400 space-y-1">
+            <div class="flex justify-between"><span>Cafe</span><span class="font-medium">07:00 – 16:00</span></div>
+            <div class="flex justify-between"><span>Bar</span><span class="font-medium">17:00 – 01:00</span></div>
+          </div>
+        </div>
+        <div class="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+          <p class="text-sm font-medium text-blue-800 dark:text-blue-300">♿ <strong>Wheelchair accessible.</strong> Please contact us for specific accessibility requirements and we'll ensure your visit is comfortable.</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Follow Us</p>
+          <div class="flex gap-4">
+            <a href="#" class="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">Instagram</a>
+            <a href="#" class="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">Facebook</a>
+            <a href="#" class="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">Twitter</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="lg:col-span-3">
+        <div class="bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 p-6 md:p-8">
+          <form onsubmit="submitPragContact(event)">
+            <div class="grid md:grid-cols-2 gap-5 mb-5">
+              <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Name *</label><input class="prag-input light-input dark:dark-input" type="text" placeholder="Your name" required/></div>
+              <div><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Email *</label><input class="prag-input light-input dark:dark-input" type="email" placeholder="your@email.com" required/></div>
+            </div>
+            <div class="mb-5"><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Subject</label>
+              <select class="prag-input light-input dark:dark-input">
+                <option>General Enquiry</option>
+                <option>Catering / Events</option>
+                <option>Table Booking (10+ guests)</option>
+                <option>Press & Media</option>
+                <option>Accessibility Requirements</option>
+                <option>Newsletter Sign-up</option>
+              </select>
+            </div>
+            <div class="mb-6"><label class="block text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5">Message *</label><textarea class="prag-input light-input dark:dark-input" rows="5" placeholder="How can we help?" required></textarea></div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded text-sm uppercase tracking-widest transition-colors">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Shared Footer -->
+<footer class="border-t border-slate-200 dark:border-zinc-800 py-10 bg-white dark:bg-zinc-950 mt-8">
+  <div class="container mx-auto px-4 text-center">
+    <div class="flex justify-center gap-6 mb-5 text-sm">
+      <a href="#" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Instagram</a>
+      <a href="#" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Facebook</a>
+      <a href="#" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Twitter</a>
+    </div>
+    <p class="text-xs text-slate-400">© 2026 The Pragmatist. Efficiently serving since dawn.</p>
+  </div>
+</footer>
+
+<script>
+  // ═══ THEME ═══
+  function toggleTheme() {
+    const html = document.documentElement;
+    const sun = document.getElementById('sun-icon');
+    const moon = document.getElementById('moon-icon');
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      sun.classList.add('hidden');
+      moon.classList.remove('hidden');
+    } else {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      sun.classList.remove('hidden');
+      moon.classList.add('hidden');
+    }
+  }
+  (function initTheme() {
+    const html = document.documentElement;
+    const sun = document.getElementById('sun-icon');
+    const moon = document.getElementById('moon-icon');
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (saved === 'dark' || (!saved && prefersDark)) {
+      html.classList.add('dark');
+      sun.classList.remove('hidden');
+      moon.classList.add('hidden');
+    }
+  })();
+
+  // ═══ SECTIONS ═══
+  function showSection(name) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(triggerReveal, 100);
+  }
+
+  // ═══ MOBILE MENU ═══
+  document.getElementById('mob-hamburger').addEventListener('click', () => document.getElementById('mobile-nav-drawer').classList.add('open'));
+  document.getElementById('close-mob-menu').addEventListener('click', closeMobMenu);
+  function closeMobMenu() { document.getElementById('mobile-nav-drawer').classList.remove('open'); }
+
+  // ═══ MENU TABS ═══
+  function switchPragTab(tab, btn) {
+    document.querySelectorAll('#section-menus .menu-tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#section-menus .menu-tab-btn').forEach(b => {
+      b.classList.remove('bg-white', 'dark:bg-zinc-700', 'shadow-sm', 'font-bold');
+      b.classList.add('text-slate-500', 'dark:text-zinc-400', 'font-medium');
+    });
+    document.getElementById('ptab-' + tab).classList.add('active');
+    btn.classList.add('bg-white', 'dark:bg-zinc-700', 'shadow-sm', 'font-bold');
+    btn.classList.remove('text-slate-500', 'dark:text-zinc-400', 'font-medium');
+  }
+
+  // ═══ BOOKINGS ═══
+  function submitPragBooking(e) {
+    e.preventDefault();
+    document.getElementById('prag-booking-form').style.display = 'none';
+    document.getElementById('prag-booking-success').classList.remove('hidden');
+  }
+  function resetPragBooking() {
+    document.getElementById('prag-booking-form').style.display = 'block';
+    document.getElementById('prag-booking-success').classList.add('hidden');
+    document.getElementById('prag-booking-form').reset();
+  }
+
+  // ═══ CONTACT ═══
+  function submitPragContact(e) {
+    e.preventDefault();
+    alert('Message sent! We\'ll be in touch within 24 hours. ✉️');
+    e.target.reset();
+  }
+
+  // ═══ REVEAL ═══
+  function triggerReveal() {
+    const reveals = document.querySelectorAll('.reveal:not(.visible)');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    reveals.forEach(r => obs.observe(r));
+  }
+  triggerReveal();
+</script>
+</body>
+</html>

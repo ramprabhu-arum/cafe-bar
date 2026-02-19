@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dusk & Dawn – Cafe / Bar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cafe-bg: #f5f0e8;
+    --cafe-text: #2c2416;
+    --cafe-accent: #c97d3a;
+    --cafe-mid: #e8dcc8;
+    --bar-bg: #0d0f18;
+    --bar-text: #e8e0d0;
+    --bar-accent: #8b6bb1;
+    --bar-mid: #1a1d2e;
+    --transition: 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 3rem;
+    backdrop-filter: blur(12px);
+    transition: background var(--transition), color var(--transition);
+  }
+  nav.cafe-nav { background: rgba(245,240,232,0.85); color: var(--cafe-text); border-bottom: 1px solid rgba(201,125,58,0.2); }
+  nav.bar-nav { background: rgba(13,15,24,0.85); color: var(--bar-text); border-bottom: 1px solid rgba(139,107,177,0.2); }
+  
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.05em; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { text-decoration: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; transition: opacity 0.3s; }
+  .nav-links a:hover { opacity: 0.6; }
+  nav.cafe-nav .nav-links a { color: var(--cafe-text); }
+  nav.bar-nav .nav-links a { color: var(--bar-text); }
+  
+  .theme-toggle {
+    display: flex; gap: 0; border-radius: 100px; overflow: hidden;
+    border: 1px solid currentColor; opacity: 0.7;
+  }
+  .theme-toggle button {
+    background: none; border: none; padding: 0.4rem 1.1rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.75rem;
+    letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    transition: all 0.3s; color: inherit;
+  }
+  .theme-toggle button.active { background: currentColor; }
+  nav.cafe-nav .theme-toggle button.active { color: var(--cafe-bg); background: var(--cafe-text); }
+  nav.bar-nav .theme-toggle button.active { color: var(--bar-bg); background: var(--bar-text); }
+
+  /* LANDING */
+  #landing {
+    height: 100vh; display: flex; position: relative; overflow: hidden;
+  }
+  .half {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; transition: flex var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .half:hover { flex: 1.4; }
+  
+  .cafe-half {
+    background: var(--cafe-bg);
+    background-image: radial-gradient(ellipse at 30% 70%, #e8c87a22 0%, transparent 60%);
+  }
+  .bar-half {
+    background: var(--bar-bg);
+    background-image: radial-gradient(ellipse at 70% 30%, #8b6bb133 0%, transparent 60%);
+  }
+
+  .half-label {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+  }
+  .cafe-half .half-label { color: var(--cafe-text); }
+  .bar-half .half-label { color: var(--bar-text); }
+  
+  .half-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase;
+    margin-top: 0.75rem; opacity: 0.6;
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .cafe-half .half-sub { color: var(--cafe-text); }
+  .bar-half .half-sub { color: var(--bar-text); }
+
+  .enter-btn {
+    margin-top: 2rem;
+    padding: 0.8rem 2.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase;
+    border: 1px solid currentColor; background: none;
+    cursor: pointer; opacity: 0; transform: translateY(10px);
+    transition: all 0.4s; text-decoration: none; display: inline-block;
+  }
+  .cafe-half .enter-btn { color: var(--cafe-text); }
+  .bar-half .enter-btn { color: var(--bar-text); }
+  .half:hover .enter-btn { opacity: 1; transform: translateY(0); }
+  .enter-btn:hover { background: currentColor; }
+  .cafe-half .enter-btn:hover { color: var(--cafe-bg); }
+  .bar-half .enter-btn:hover { color: var(--bar-bg); }
+
+  /* SVG DIVIDER */
+  .divider-svg {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    z-index: 10; width: 120px; height: 120px;
+    pointer-events: none;
+  }
+  .divider-svg circle {
+    transition: fill 0.6s ease, r 0.6s ease;
+  }
+  .divider-svg .sun { fill: var(--cafe-accent); }
+  .divider-svg .moon { fill: var(--bar-accent); opacity: 0; transition: opacity 0.6s; }
+  #landing:has(.bar-half:hover) .divider-svg .sun { opacity: 0; }
+  #landing:has(.bar-half:hover) .divider-svg .moon { opacity: 1; }
+
+  .divider-line {
+    position: absolute; left: 50%; top: 0; bottom: 0;
+    width: 1px; z-index: 5; pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgba(150,120,90,0.3) 30%, rgba(150,120,90,0.3) 70%, transparent);
+  }
+
+  /* SECTIONS */
+  section { padding: 8rem 3rem; }
+  
+  /* CAFE SECTION */
+  #cafe { background: var(--cafe-bg); color: var(--cafe-text); }
+  
+  .section-hero {
+    min-height: 70vh; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; text-align: center;
+    background-image: linear-gradient(135deg, var(--cafe-mid) 0%, var(--cafe-bg) 100%);
+    padding: 8rem 3rem;
+  }
+  .section-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    line-height: 1.05; font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+  .section-hero p {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem; max-width: 500px; opacity: 0.7; line-height: 1.7;
+  }
+  .cafe-hero { background: linear-gradient(135deg, #ece5d4 0%, #f5f0e8 60%, #eed9bb 100%); }
+  .bar-hero { background: linear-gradient(135deg, #0d0f18 0%, #141728 60%, #1e1530 100%); }
+  .cafe-hero h1 { color: var(--cafe-text); }
+  .bar-hero h1 { color: var(--bar-text); }
+  .cafe-hero p { color: var(--cafe-text); }
+  .bar-hero p { color: var(--bar-text); }
+
+  .cta-btn {
+    display: inline-block; margin-top: 2.5rem;
+    padding: 1rem 3rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase;
+    text-decoration: none; border: 1px solid;
+    transition: all 0.3s;
+  }
+  .cafe-cta { color: var(--cafe-text); border-color: var(--cafe-accent); }
+  .cafe-cta:hover { background: var(--cafe-accent); color: var(--cafe-bg); border-color: var(--cafe-accent); }
+  .bar-cta { color: var(--bar-text); border-color: var(--bar-accent); }
+  .bar-cta:hover { background: var(--bar-accent); color: var(--bar-bg); border-color: var(--bar-accent); }
+
+  /* GRID LAYOUTS */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; max-width: 1200px; margin: 0 auto; }
+  .three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+  
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase; opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.15; margin-bottom: 1.5rem;
+  }
+  p.body { font-family: 'DM Sans', sans-serif; line-height: 1.8; opacity: 0.75; }
+  
+  .img-placeholder {
+    width: 100%; aspect-ratio: 4/3;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    border-radius: 4px;
+  }
+  .cafe-img { background: var(--cafe-mid); color: var(--cafe-accent); }
+  .bar-img { background: var(--bar-mid); color: var(--bar-accent); }
+
+  .card {
+    padding: 2.5rem 2rem; border-radius: 4px;
+  }
+  .cafe-card { background: var(--cafe-mid); }
+  .bar-card { background: var(--bar-mid); }
+  .card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.75rem; }
+  .card p { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; line-height: 1.7; opacity: 0.7; }
+
+  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 900px; margin: 3rem auto 0; }
+  .menu-item { display: flex; justify-content: space-between; align-items: baseline; padding: 1rem 0; }
+  .menu-item-border { border-bottom: 1px solid; }
+  .cafe-border { border-color: rgba(44,36,22,0.15); }
+  .bar-border { border-color: rgba(232,224,208,0.15); }
+  .menu-name { font-family: 'Playfair Display', serif; }
+  .menu-desc { font-family: 'DM Sans', sans-serif; font-size: 0.8rem; opacity: 0.6; margin-top: 0.2rem; }
+  .menu-price { font-family: 'DM Sans', sans-serif; font-weight: 500; }
+  .cafe-price { color: var(--cafe-accent); }
+  .bar-price { color: var(--bar-accent); }
+
+  /* FORM */
+  .form-section { max-width: 600px; margin: 3rem auto 0; }
+  .form-group { margin-bottom: 1.5rem; }
+  label { display: block; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; opacity: 0.7; }
+  input, select, textarea {
+    width: 100%; padding: 0.9rem 1rem;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem;
+    border: 1px solid; border-radius: 2px; background: none;
+    transition: border-color 0.3s;
+  }
+  .cafe-input { border-color: rgba(44,36,22,0.3); color: var(--cafe-text); }
+  .cafe-input:focus { border-color: var(--cafe-accent); outline: none; }
+  .bar-input { border-color: rgba(232,224,208,0.3); color: var(--bar-text); }
+  .bar-input:focus { border-color: var(--bar-accent); outline: none; }
+  textarea { resize: vertical; min-height: 120px; }
+  
+  .submit-btn {
+    width: 100%; padding: 1rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase;
+    border: 1px solid; cursor: pointer; transition: all 0.3s; background: none;
+  }
+  .cafe-submit { border-color: var(--cafe-accent); color: var(--cafe-text); }
+  .cafe-submit:hover { background: var(--cafe-accent); color: var(--cafe-bg); }
+  .bar-submit { border-color: var(--bar-accent); color: var(--bar-text); }
+  .bar-submit:hover { background: var(--bar-accent); color: var(--bar-bg); }
+
+  /* EVENTS */
+  .event-item { display: flex; gap: 2rem; padding: 2rem 0; border-bottom: 1px solid rgba(232,224,208,0.15); }
+  .event-date { font-family: 'Playfair Display', serif; font-size: 2.5rem; line-height: 1; color: var(--bar-accent); min-width: 60px; }
+  .event-month { font-family: 'DM Sans', sans-serif; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.5; }
+  .event-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.3rem; }
+  .event-desc { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; opacity: 0.6; }
+
+  /* FOOTER */
+  footer {
+    padding: 4rem 3rem;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 3rem;
+  }
+  .cafe-footer { background: var(--cafe-mid); color: var(--cafe-text); }
+  .bar-footer { background: var(--bar-mid); color: var(--bar-text); }
+  .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1rem; }
+  .footer-text { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; opacity: 0.6; line-height: 1.7; }
+  .footer-title { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.5; margin-bottom: 1rem; }
+  .social-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .social-links a {
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    text-decoration: none; padding: 0.4rem 0.8rem;
+    border: 1px solid currentColor; opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+  .social-links a:hover { opacity: 1; }
+  .cafe-footer .social-links a { color: var(--cafe-text); }
+  .bar-footer .social-links a { color: var(--bar-text); }
+  .email-signup { display: flex; gap: 0.5rem; margin-top: 1rem; }
+  .email-signup input { flex: 1; }
+  .email-signup button {
+    padding: 0.9rem 1.2rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    border: 1px solid; cursor: pointer; background: none;
+    transition: all 0.3s; white-space: nowrap;
+  }
+  .cafe-footer .email-signup button { border-color: var(--cafe-accent); color: var(--cafe-text); }
+  .cafe-footer .email-signup button:hover { background: var(--cafe-accent); color: var(--cafe-bg); }
+  .bar-footer .email-signup button { border-color: var(--bar-accent); color: var(--bar-text); }
+  .bar-footer .email-signup button:hover { background: var(--bar-accent); color: var(--bar-bg); }
+
+  /* CONTACT */
+  #contact { background: #f9f6f0; color: var(--cafe-text); }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 5rem; max-width: 1100px; margin: 0 auto; }
+  .contact-info { }
+  .contact-detail { margin-bottom: 2rem; }
+  .contact-detail .label { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.5; margin-bottom: 0.5rem; }
+  .contact-detail .val { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+  .accessibility-note {
+    display: inline-block; margin-top: 2rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(201,125,58,0.1); border-left: 3px solid var(--cafe-accent);
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem; line-height: 1.6;
+  }
+
+  /* SECTION SPACER */
+  .section-pad { padding: 6rem 3rem; }
+  .page-section { max-width: 1200px; margin: 0 auto; }
+
+  /* BAR SECTION */
+  #bar { background: var(--bar-bg); color: var(--bar-text); }
+
+  /* BOOKING */
+  .booking-card {
+    background: var(--bar-mid); border: 1px solid rgba(139,107,177,0.3);
+    padding: 3rem; border-radius: 4px; max-width: 600px; margin: 0 auto;
+  }
+  .booking-card h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 2rem; }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    #landing { flex-direction: column; }
+    .half { min-height: 50vh; }
+    .half:hover { flex: 1; }
+    .two-col, .three-col, footer, .contact-grid { grid-template-columns: 1fr; }
+    section { padding: 5rem 1.5rem; }
+    .section-pad { padding: 4rem 1.5rem; }
+    .menu-grid { grid-template-columns: 1fr; }
+    .email-signup { flex-direction: column; }
+  }
+
+  /* MOBILE NAV */
+  .hamburger { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; }
+  .hamburger span { display: block; width: 24px; height: 1px; background: currentColor; transition: all 0.3s; }
+  @media (max-width: 768px) { .hamburger { display: flex; } }
+
+  .mobile-menu {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 2rem;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu.cafe-mob { background: var(--cafe-bg); }
+  .mobile-menu.bar-mob { background: var(--bar-bg); }
+  .mobile-menu a {
+    font-family: 'Playfair Display', serif; font-size: 2.5rem;
+    text-decoration: none; font-style: italic;
+    transition: opacity 0.3s;
+  }
+  .mobile-menu.cafe-mob a { color: var(--cafe-text); }
+  .mobile-menu.bar-mob a { color: var(--bar-text); }
+  .mobile-menu a:hover { opacity: 0.5; }
+  .close-menu { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; cursor: pointer; font-size: 1.5rem; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav" class="cafe-nav">
+  <div class="logo">Dusk &amp; Dawn</div>
+  <ul class="nav-links">
+    <li><a href="#landing">Home</a></li>
+    <li><a href="#cafe">Cafe</a></li>
+    <li><a href="#bar">Bar</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div style="display:flex;gap:1rem;align-items:center;">
+    <div class="theme-toggle">
+      <button class="active" onclick="setTheme('cafe')">Day</button>
+      <button onclick="setTheme('bar')">Night</button>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu cafe-mob" id="mobile-menu">
+  <button class="close-menu" id="close-menu">✕</button>
+  <a href="#landing" onclick="closeMobileMenu()">Home</a>
+  <a href="#cafe" onclick="closeMobileMenu()">Cafe</a>
+  <a href="#bar" onclick="closeMobileMenu()">Bar</a>
+  <a href="#contact" onclick="closeMobileMenu()">Contact</a>
+</div>
+
+<!-- LANDING -->
+<section id="landing">
+  <div class="half cafe-half" onclick="window.location.href='#cafe'">
+    <div class="section-label" style="color:var(--cafe-accent)">Morning to Afternoon</div>
+    <div class="half-label">Cafe</div>
+    <div class="half-sub">Open 7am – 4pm</div>
+    <a class="enter-btn" href="#cafe">Enter →</a>
+  </div>
+
+  <!-- Central SVG -->
+  <div class="divider-line"></div>
+  <svg class="divider-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" id="central-svg">
+    <circle class="sun" cx="60" cy="60" r="28" fill="#c97d3a" opacity="0.9"/>
+    <circle class="moon" cx="60" cy="60" r="28" fill="#8b6bb1" opacity="0"/>
+    <g id="sun-rays" stroke="#c97d3a" stroke-width="2" opacity="0.6">
+      <line x1="60" y1="22" x2="60" y2="10"/>
+      <line x1="60" y1="98" x2="60" y2="110"/>
+      <line x1="22" y1="60" x2="10" y2="60"/>
+      <line x1="98" y1="60" x2="110" y2="60"/>
+      <line x1="30" y1="30" x2="22" y2="22"/>
+      <line x1="90" y1="90" x2="98" y2="98"/>
+      <line x1="90" y1="30" x2="98" y2="22"/>
+      <line x1="30" y1="90" x2="22" y2="98"/>
+    </g>
+    <g id="moon-decor" opacity="0">
+      <circle cx="75" cy="45" r="8" fill="#0d0f18"/>
+      <circle cx="50" cy="55" r="5" fill="#0d0f18"/>
+    </g>
+    <circle cx="30" cy="20" r="2" fill="#e8e0d0" id="star1" opacity="0"/>
+    <circle cx="85" cy="15" r="1.5" fill="#e8e0d0" id="star2" opacity="0"/>
+    <circle cx="100" cy="40" r="2" fill="#e8e0d0" id="star3" opacity="0"/>
+  </svg>
+
+  <div class="half bar-half" onclick="window.location.href='#bar'">
+    <div class="section-label" style="color:var(--bar-accent)">Evening to Late</div>
+    <div class="half-label">Bar</div>
+    <div class="half-sub">Open 5pm – 1am</div>
+    <a class="enter-btn" href="#bar">Enter →</a>
+  </div>
+</section>
+
+<!-- CAFE SECTION -->
+<div id="cafe">
+  <!-- Hero -->
+  <div class="section-hero cafe-hero">
+    <div class="section-label" style="color:var(--cafe-accent);margin-bottom:1.5rem;">Welcome to the Cafe</div>
+    <h1>Where mornings<br>begin beautifully.</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    <a class="cta-btn cafe-cta" href="#cafe-menu">View Menu</a>
+  </div>
+
+  <!-- About -->
+  <div class="section-pad" style="background:var(--cafe-bg);">
+    <div class="two-col page-section">
+      <div>
+        <div class="section-label" style="color:var(--cafe-accent);">About the Cafe</div>
+        <h2 style="color:var(--cafe-text);">A place of warmth and good coffee</h2>
+        <p class="body" style="color:var(--cafe-text);">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut labore et dolore magna aliqua. Quis nostrud exercitation ullamco laboris nisi aliquip ex commodo consequat.</p>
+        <p class="body" style="color:var(--cafe-text);margin-top:1rem;">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+      </div>
+      <div class="img-placeholder cafe-img">[ Image Placeholder ]</div>
+    </div>
+  </div>
+
+  <!-- Menu -->
+  <div id="cafe-menu" class="section-pad" style="background:var(--cafe-mid);">
+    <div class="page-section">
+      <div style="text-align:center;margin-bottom:3rem;">
+        <div class="section-label" style="color:var(--cafe-accent);">Our Menu</div>
+        <h2 style="color:var(--cafe-text);">Food &amp; Drink</h2>
+      </div>
+      <div class="menu-grid">
+        <div>
+          <div class="section-label" style="color:var(--cafe-text);margin-bottom:1rem;">Coffee</div>
+          <div class="menu-item menu-item-border cafe-border" style="color:var(--cafe-text)">
+            <div><div class="menu-name">Flat White</div><div class="menu-desc">Double espresso, steamed milk</div></div>
+            <div class="menu-price cafe-price">£3.80</div>
+          </div>
+          <div class="menu-item menu-item-border cafe-border" style="color:var(--cafe-text)">
+            <div><div class="menu-name">Oat Latte</div><div class="menu-desc">Seasonal blend, oat milk</div></div>
+            <div class="menu-price cafe-price">£4.20</div>
+          </div>
+          <div class="menu-item cafe-border" style="color:var(--cafe-text)">
+            <div><div class="menu-name">Filter Coffee</div><div class="menu-desc">Single origin, daily rotation</div></div>
+            <div class="menu-price cafe-price">£3.20</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label" style="color:var(--cafe-text);margin-bottom:1rem;">Food</div>
+          <div class="menu-item menu-item-border cafe-border" style="color:var(--cafe-text)">
+            <div><div class="menu-name">Avocado Toast</div><div class="menu-desc">Sourdough, poached egg, chilli flakes</div></div>
+            <div class="menu-price cafe-price">£9.50</div>
+          </div>
+          <div class="menu-item menu-item-border cafe-border" style="color:var(--cafe-text)">
+            <div><div class="menu-name">Granola Bowl</div><div class="menu-desc">House granola, seasonal fruit, yoghurt</div></div>
+            <div class="menu-price cafe-price">£8.00</div>
+          </div>
+          <div class="menu-item cafe-border" style="color:var(--cafe-text)">
+            <div><div class="menu-name">BLT Sandwich</div><div class="menu-desc">Smoked bacon, lettuce, tomato, aioli</div></div>
+            <div class="menu-price cafe-price">£10.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ordering -->
+  <div class="section-pad" style="background:var(--cafe-bg);">
+    <div class="page-section">
+      <div style="text-align:center;margin-bottom:3rem;">
+        <div class="section-label" style="color:var(--cafe-accent);">Order</div>
+        <h2 style="color:var(--cafe-text);">Catering &amp; Delivery</h2>
+        <p class="body" style="color:var(--cafe-text);max-width:500px;margin:0 auto;">Available through these platforms or contact us directly.</p>
+      </div>
+      <div class="three-col">
+        <div class="card cafe-card" style="color:var(--cafe-text)">
+          <h3>Simple Enquiry</h3>
+          <p>Send us a message about catering requirements and we'll be in touch within 24 hours.</p>
+          <a href="#contact" class="cta-btn cafe-cta" style="margin-top:1.5rem;display:inline-block;">Contact Us</a>
+        </div>
+        <div class="card cafe-card" style="color:var(--cafe-text)">
+          <h3>Order Online</h3>
+          <p>Browse our full menu and place your order for collection or local delivery.</p>
+          <a href="#" class="cta-btn cafe-cta" style="margin-top:1.5rem;display:inline-block;">Order Now</a>
+        </div>
+        <div class="card cafe-card" style="color:var(--cafe-text)">
+          <h3>Delivery Apps</h3>
+          <p>Find us on Deliveroo and Just Eat for quick local delivery to your door.</p>
+          <div style="display:flex;gap:0.5rem;margin-top:1.5rem;flex-wrap:wrap;">
+            <a href="#" class="cta-btn cafe-cta" style="margin:0;">Deliveroo</a>
+            <a href="#" class="cta-btn cafe-cta" style="margin:0;">Just Eat</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Cafe -->
+  <footer class="cafe-footer">
+    <div>
+      <div class="footer-logo">Dusk &amp; Dawn</div>
+      <div class="footer-text">123 Placeholder Street<br>Your City, AB1 2CD<br><br>+44 (0)20 1234 5678</div>
+    </div>
+    <div>
+      <div class="footer-title">Newsletter</div>
+      <div class="footer-text" style="margin-bottom:1rem;">Stay updated on seasonal menus and events.</div>
+      <div class="email-signup">
+        <input type="email" placeholder="your@email.com" class="cafe-input" style="flex:1;">
+        <button>Subscribe</button>
+      </div>
+    </div>
+    <div>
+      <div class="footer-title">Follow Us</div>
+      <div class="social-links">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">Twitter</a>
+      </div>
+      <div style="margin-top:2rem;background:var(--cafe-bg);padding:1.5rem;border-radius:4px;">
+        <div class="footer-text" style="text-align:center;opacity:0.5;">[ Instagram Feed Placeholder ]</div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- BAR SECTION -->
+<div id="bar">
+  <!-- Hero -->
+  <div class="section-hero bar-hero">
+    <div class="section-label" style="color:var(--bar-accent);margin-bottom:1.5rem;">Welcome to the Bar</div>
+    <h1>When the sun sets,<br>we come alive.</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    <a class="cta-btn bar-cta" href="#bar-booking">Book a Table</a>
+  </div>
+
+  <!-- About Bar -->
+  <div class="section-pad" style="background:var(--bar-bg);">
+    <div class="two-col page-section">
+      <div class="img-placeholder bar-img">[ Image Placeholder ]</div>
+      <div>
+        <div class="section-label" style="color:var(--bar-accent);">About the Bar</div>
+        <h2 style="color:var(--bar-text);">Craft cocktails and curated wines</h2>
+        <p class="body" style="color:var(--bar-text);">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut labore et dolore magna aliqua. Quis nostrud exercitation ullamco laboris nisi aliquip ex commodo consequat.</p>
+        <p class="body" style="color:var(--bar-text);margin-top:1rem;">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drinks Menu -->
+  <div class="section-pad" style="background:var(--bar-mid);">
+    <div class="page-section">
+      <div style="text-align:center;margin-bottom:3rem;">
+        <div class="section-label" style="color:var(--bar-accent);">Drinks</div>
+        <h2 style="color:var(--bar-text);">The Menu</h2>
+      </div>
+      <div class="menu-grid">
+        <div>
+          <div class="section-label" style="color:var(--bar-text);margin-bottom:1rem;">Cocktails</div>
+          <div class="menu-item menu-item-border bar-border" style="color:var(--bar-text)">
+            <div><div class="menu-name">Negroni</div><div class="menu-desc">Gin, Campari, sweet vermouth</div></div>
+            <div class="menu-price bar-price">£12</div>
+          </div>
+          <div class="menu-item menu-item-border bar-border" style="color:var(--bar-text)">
+            <div><div class="menu-name">Espresso Martini</div><div class="menu-desc">Vodka, Kahlúa, fresh espresso</div></div>
+            <div class="menu-price bar-price">£13</div>
+          </div>
+          <div class="menu-item bar-border" style="color:var(--bar-text)">
+            <div><div class="menu-name">Aperol Spritz</div><div class="menu-desc">Aperol, Prosecco, orange</div></div>
+            <div class="menu-price bar-price">£11</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label" style="color:var(--bar-text);margin-bottom:1rem;">Wines</div>
+          <div class="menu-item menu-item-border bar-border" style="color:var(--bar-text)">
+            <div><div class="menu-name">House Red</div><div class="menu-desc">175ml / Bottle</div></div>
+            <div class="menu-price bar-price">£8 / £32</div>
+          </div>
+          <div class="menu-item menu-item-border bar-border" style="color:var(--bar-text)">
+            <div><div class="menu-name">House White</div><div class="menu-desc">175ml / Bottle</div></div>
+            <div class="menu-price bar-price">£8 / £32</div>
+          </div>
+          <div class="menu-item bar-border" style="color:var(--bar-text)">
+            <div><div class="menu-name">Prosecco</div><div class="menu-desc">125ml / Bottle</div></div>
+            <div class="menu-price bar-price">£9 / £38</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking -->
+  <div id="bar-booking" class="section-pad" style="background:var(--bar-bg);">
+    <div class="page-section" style="text-align:center;">
+      <div class="section-label" style="color:var(--bar-accent);">Reservations</div>
+      <h2 style="color:var(--bar-text);margin-bottom:3rem;">Book a Table</h2>
+      <div class="booking-card">
+        <h3 style="color:var(--bar-text);">Reserve Your Evening</h3>
+        <div class="form-group">
+          <label style="color:var(--bar-text);">Name</label>
+          <input class="bar-input" type="text" placeholder="Your full name">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group">
+            <label style="color:var(--bar-text);">Date</label>
+            <input class="bar-input" type="date">
+          </div>
+          <div class="form-group">
+            <label style="color:var(--bar-text);">Time</label>
+            <select class="bar-input">
+              <option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option>
+              <option>8:00 PM</option><option>9:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label style="color:var(--bar-text);">Guests</label>
+          <select class="bar-input">
+            <option>1-2 guests</option><option>3-4 guests</option><option>5-6 guests</option><option>7+ guests</option>
+          </select>
+        </div>
+        <button class="submit-btn bar-submit" onclick="alert('Booking confirmed! We look forward to seeing you.')">Confirm Booking</button>
+        <p style="font-family:'DM Sans',sans-serif;font-size:0.75rem;opacity:0.4;margin-top:1rem;color:var(--bar-text);">No deposit required. Cancel up to 24 hours before your reservation.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Events -->
+  <div class="section-pad" style="background:var(--bar-mid);">
+    <div class="page-section">
+      <div style="text-align:center;margin-bottom:3rem;">
+        <div class="section-label" style="color:var(--bar-accent);">What's On</div>
+        <h2 style="color:var(--bar-text);">Events</h2>
+      </div>
+      <div style="max-width:700px;margin:0 auto;">
+        <div class="event-item">
+          <div><div class="event-date">15</div><div class="event-month">Mar</div></div>
+          <div><div class="event-title" style="color:var(--bar-text);">Jazz Night</div><div class="event-desc">Live jazz trio from 8pm. Free entry.</div></div>
+        </div>
+        <div class="event-item">
+          <div><div class="event-date">22</div><div class="event-month">Mar</div></div>
+          <div><div class="event-title" style="color:var(--bar-text);">Wine Tasting Evening</div><div class="event-desc">Curated selection from our sommelier. £25 per person.</div></div>
+        </div>
+        <div class="event-item">
+          <div><div class="event-date">28</div><div class="event-month">Mar</div></div>
+          <div><div class="event-title" style="color:var(--bar-text);">Cocktail Masterclass</div><div class="event-desc">Learn to mix three signature cocktails. £40 per person.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Bar -->
+  <footer class="bar-footer">
+    <div>
+      <div class="footer-logo" style="color:var(--bar-text);">Dusk &amp; Dawn</div>
+      <div class="footer-text">123 Placeholder Street<br>Your City, AB1 2CD<br><br>+44 (0)20 1234 5678</div>
+    </div>
+    <div>
+      <div class="footer-title">Newsletter</div>
+      <div class="footer-text" style="margin-bottom:1rem;">Be first to hear about events and special menus.</div>
+      <div class="email-signup">
+        <input type="email" placeholder="your@email.com" class="bar-input" style="flex:1;">
+        <button>Subscribe</button>
+      </div>
+    </div>
+    <div>
+      <div class="footer-title">Follow Us</div>
+      <div class="social-links">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">Twitter</a>
+      </div>
+      <div style="margin-top:2rem;background:var(--bar-bg);padding:1.5rem;border-radius:4px;">
+        <div class="footer-text" style="text-align:center;opacity:0.5;">[ Instagram Feed Placeholder ]</div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- CONTACT -->
+<div id="contact">
+  <div class="section-hero" style="background:#f0ece3;min-height:30vh;">
+    <div class="section-label" style="color:var(--cafe-accent);">Get in Touch</div>
+    <h1 style="color:var(--cafe-text);">Contact Us</h1>
+  </div>
+  <div class="section-pad" style="background:#f9f6f0;">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-detail">
+          <div class="label" style="color:var(--cafe-text);">Address</div>
+          <div class="val" style="color:var(--cafe-text);">123 Placeholder Street<br>Your City, AB1 2CD</div>
+        </div>
+        <div class="contact-detail">
+          <div class="label" style="color:var(--cafe-text);">Phone</div>
+          <div class="val" style="color:var(--cafe-text);">+44 (0)20 1234 5678</div>
+        </div>
+        <div class="contact-detail">
+          <div class="label" style="color:var(--cafe-text);">Hours</div>
+          <div class="val" style="color:var(--cafe-text);">Cafe: Mon–Sun 7am–4pm<br>Bar: Mon–Sun 5pm–1am</div>
+        </div>
+        <div class="accessibility-note">
+          ♿ This venue is wheelchair accessible. Please contact us for specific accessibility requirements.
+        </div>
+      </div>
+      <div>
+        <h2 style="color:var(--cafe-text);margin-bottom:2rem;">Send a Message</h2>
+        <div class="form-group">
+          <label style="color:var(--cafe-text);">Name</label>
+          <input class="cafe-input" type="text" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label style="color:var(--cafe-text);">Email</label>
+          <input class="cafe-input" type="email" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label style="color:var(--cafe-text);">Message</label>
+          <textarea class="cafe-input" placeholder="How can we help?"></textarea>
+        </div>
+        <button class="submit-btn cafe-submit" onclick="alert('Message sent! We\'ll be in touch soon.')">Send Message</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // SVG animation on hover
+  const cafeSide = document.querySelector('.cafe-half');
+  const barSide = document.querySelector('.bar-half');
+  const svg = document.getElementById('central-svg');
+
+  cafeSide.addEventListener('mouseenter', () => {
+    document.querySelector('.sun').style.opacity = '0.9';
+    document.querySelector('.moon').style.opacity = '0';
+    document.getElementById('sun-rays').style.opacity = '0.6';
+    document.getElementById('moon-decor').style.opacity = '0';
+    ['star1','star2','star3'].forEach(id => document.getElementById(id).style.opacity = '0');
+  });
+  barSide.addEventListener('mouseenter', () => {
+    document.querySelector('.sun').style.opacity = '0';
+    document.querySelector('.moon').style.opacity = '0.9';
+    document.getElementById('sun-rays').style.opacity = '0';
+    document.getElementById('moon-decor').style.opacity = '1';
+    ['star1','star2','star3'].forEach(id => document.getElementById(id).style.opacity = '1');
+  });
+
+  // Nav theme
+  function setTheme(theme) {
+    const nav = document.getElementById('main-nav');
+    const mob = document.getElementById('mobile-menu');
+    const btns = document.querySelectorAll('.theme-toggle button');
+    nav.className = theme === 'cafe' ? 'cafe-nav' : 'bar-nav';
+    mob.className = `mobile-menu ${theme === 'cafe' ? 'cafe-mob' : 'bar-mob'}`;
+    btns[0].classList.toggle('active', theme === 'cafe');
+    btns[1].classList.toggle('active', theme === 'bar');
+    if (theme === 'bar') {
+      document.querySelector('#bar').scrollIntoView({behavior:'smooth'});
+    } else {
+      document.querySelector('#cafe').scrollIntoView({behavior:'smooth'});
+    }
+  }
+
+  // Update nav on scroll
+  window.addEventListener('scroll', () => {
+    const bar = document.getElementById('bar');
+    const nav = document.getElementById('main-nav');
+    const btns = document.querySelectorAll('.theme-toggle button');
+    if (window.scrollY >= bar.offsetTop - 100) {
+      nav.className = 'bar-nav';
+      btns[0].classList.remove('active');
+      btns[1].classList.add('active');
+    } else {
+      nav.className = 'cafe-nav';
+      btns[0].classList.add('active');
+      btns[1].classList.remove('active');
+    }
+  });
+
+  // Mobile menu
+  document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.add('open');
+  });
+  document.getElementById('close-menu').addEventListener('click', closeMobileMenu);
+  function closeMobileMenu() {
+    document.getElementById('mobile-menu').classList.remove('open');
+  }
+</script>
+</body>
+</html>

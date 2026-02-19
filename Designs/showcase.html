@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cafe & Bar — Design Concepts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #08090f;
+      --surface:  #0f1018;
+      --border:   rgba(255,255,255,0.07);
+      --amber:    #c8922a;
+      --amber-lt: #e8b84b;
+      --violet:   #7c5ce4;
+      --text-1:   #f0ede8;
+      --text-2:   #9a9590;
+      --text-3:   #5a5650;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── ambient glows ── */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 600px; height: 600px;
+      top: -200px; left: -150px;
+      background: radial-gradient(circle, rgba(200,146,42,0.12) 0%, transparent 70%);
+    }
+    body::after {
+      width: 500px; height: 500px;
+      bottom: -150px; right: -100px;
+      background: radial-gradient(circle, rgba(124,92,228,0.12) 0%, transparent 70%);
+    }
+
+    /* ── header ── */
+    .header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 64px 24px 48px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .eyebrow-line {
+      width: 60px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--amber));
+    }
+    .eyebrow-line.right {
+      background: linear-gradient(90deg, var(--amber), transparent);
+    }
+    .eyebrow-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(52px, 8vw, 96px);
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--text-1);
+      margin-bottom: 20px;
+    }
+    .hero-title .amp {
+      color: var(--amber);
+      font-style: italic;
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-2);
+      max-width: 460px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    .meta-pills {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 16px;
+      background: rgba(255,255,255,0.03);
+    }
+    .pill.highlight {
+      color: var(--amber-lt);
+      border-color: rgba(200,146,42,0.3);
+      background: rgba(200,146,42,0.06);
+    }
+
+    /* ── grid ── */
+    .grid {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    @media (max-width: 1024px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px)  { .grid { grid-template-columns: 1fr; } }
+
+    /* ── tile ── */
+    .tile {
+      position: relative;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--surface);
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--border);
+    }
+
+    /* colour swatch strip */
+    .swatch-strip {
+      display: flex;
+      height: 3px;
+      width: 100%;
+    }
+    .swatch-strip span { flex: 1; }
+
+    /* screenshot preview */
+    .tile-preview {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+      background: #111;
+    }
+    .tile-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tile:hover .tile-preview img {
+      transform: scale(1.04);
+    }
+
+    /* hover overlay */
+    .tile-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 9, 15, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    .tile:hover .tile-overlay { opacity: 1; }
+
+    .cta-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--amber-lt);
+      border: none;
+      border-radius: 2px;
+      padding: 12px 24px;
+      cursor: pointer;
+      transform: translateY(8px);
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tile:hover .cta-btn { transform: translateY(0); }
+
+    /* tile body */
+    .tile-body {
+      padding: 20px 22px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .tile-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .tile-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      color: var(--text-3);
+    }
+    .tile-accent-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .tile-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text-1);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    .tile-desc {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    .tile-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 2px;
+      padding: 3px 8px;
+    }
+
+    /* ── footer ── */
+    .footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 32px 24px 48px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
+    .footer-brand span { color: var(--amber); }
+    .footer-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 6px;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">VendhanInfotech &middot; Design Concepts</span>
+      <div class="eyebrow-line right"></div>
+    </div>
+    <h1 class="hero-title">Cafe <span class="amp">&amp;</span> Bar</h1>
+    <p class="hero-sub">Six distinct design directions for your cafe/bar concept. Each is fully interactive — click any tile to explore.</p>
+    <div class="meta-pills">
+      <span class="pill highlight">6 Prototypes</span>
+      <span class="pill">Fully Interactive</span>
+      <span class="pill">Mobile Responsive</span>
+      <span class="pill">Day &amp; Night Themes</span>
+    </div>
+  </header>
+
+  <!-- GRID -->
+  <main class="grid">
+
+    <!-- 01 Dusk & Dawn -->
+    <a class="tile" href="dawndusk.html">
+      <div class="swatch-strip">
+        <span style="background:#f0ece3"></span>
+        <span style="background:#c8a96e"></span>
+        <span style="background:#1a1a2e"></span>
+        <span style="background:#8b6bb1"></span>
+      </div>
+      <div class="tile-preview">
+        <img src="img/preview_dawndusk.png" alt="Dusk & Dawn prototype" />
+        <div class="tile-overlay"><div class="cta-btn">Explore Prototype →</div></div>
+      </div>
+      <div class="tile-body">
+        <div class="tile-meta">
+          <span class="tile-num">01 / 06</span>
+          <span class="tile-accent-dot" style="background:#c8a96e"></span>
+        </div>
+        <div class="tile-name">Dusk &amp; Dawn</div>
+        <div class="tile-desc">Warm parchment cafe meets deep midnight bar. A refined split layout with an animated sun/moon toggle and full dual-brand experience.</div>
+        <div class="tile-tags">
+          <span class="tag">Animated Toggle</span>
+          <span class="tag">Dual Theme</span>
+          <span class="tag">Editorial</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 02 Split Screen -->
+    <a class="tile" href="splitscreen.html">
+      <div class="swatch-strip">
+        <span style="background:#e8e4d4"></span>
+        <span style="background:#2d5a3d"></span>
+        <span style="background:#0a1128"></span>
+        <span style="background:#d4af37"></span>
+      </div>
+      <div class="tile-preview">
+        <img src="img/preview_splitscreen.png" alt="Split Screen prototype" />
+        <div class="tile-overlay"><div class="cta-btn">Explore Prototype →</div></div>
+      </div>
+      <div class="tile-body">
+        <div class="tile-meta">
+          <span class="tile-num">02 / 06</span>
+          <span class="tile-accent-dot" style="background:#2d5a3d"></span>
+        </div>
+        <div class="tile-name">The Split Screen</div>
+        <div class="tile-desc">A bold 50/50 split landing page. Forest green cafe meets midnight navy bar. The user chooses their world from the very first moment.</div>
+        <div class="tile-tags">
+          <span class="tag">Split Layout</span>
+          <span class="tag">Hover Expand</span>
+          <span class="tag">Classic</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 03 The Storyteller -->
+    <a class="tile" href="storyteller.html">
+      <div class="swatch-strip">
+        <span style="background:#f5e6c8"></span>
+        <span style="background:#d4822a"></span>
+        <span style="background:#0f172a"></span>
+        <span style="background:#818cf8"></span>
+      </div>
+      <div class="tile-preview">
+        <img src="img/preview_storyteller.png" alt="The Storyteller prototype" />
+        <div class="tile-overlay"><div class="cta-btn">Explore Prototype →</div></div>
+      </div>
+      <div class="tile-body">
+        <div class="tile-meta">
+          <span class="tile-num">03 / 06</span>
+          <span class="tile-accent-dot" style="background:#d4822a"></span>
+        </div>
+        <div class="tile-name">The Storyteller</div>
+        <div class="tile-desc">Full-screen immersive photography hero. Warm amber by day, electric indigo by night. A day/night toggle that transforms the entire experience.</div>
+        <div class="tile-tags">
+          <span class="tag">Immersive</span>
+          <span class="tag">Day/Night Toggle</span>
+          <span class="tag">Cinematic</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 04 The Pragmatist -->
+    <a class="tile" href="pragmatist.html">
+      <div class="swatch-strip">
+        <span style="background:#f8f6f0"></span>
+        <span style="background:#c8922a"></span>
+        <span style="background:#1a1a2e"></span>
+        <span style="background:#6366f1"></span>
+      </div>
+      <div class="tile-preview">
+        <img src="img/preview_pragmatist.png" alt="The Pragmatist prototype" />
+        <div class="tile-overlay"><div class="cta-btn">Explore Prototype →</div></div>
+      </div>
+      <div class="tile-body">
+        <div class="tile-meta">
+          <span class="tile-num">04 / 06</span>
+          <span class="tile-accent-dot" style="background:#c8922a"></span>
+        </div>
+        <div class="tile-name">The Pragmatist</div>
+        <div class="tile-desc">Clean, functional, and fast. A two-card landing with a moon/sun dark mode toggle. Prioritises clarity, speed, and ease of use above all else.</div>
+        <div class="tile-tags">
+          <span class="tag">Minimal</span>
+          <span class="tag">Dark Mode</span>
+          <span class="tag">Mobile-First</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 05 Common Ground -->
+    <a class="tile" href="commonground.html">
+      <div class="swatch-strip">
+        <span style="background:#f5f0e8"></span>
+        <span style="background:#c45e1a"></span>
+        <span style="background:#1a1830"></span>
+        <span style="background:#7c5ce4"></span>
+      </div>
+      <div class="tile-preview">
+        <img src="img/preview_commonground.png" alt="Common Ground prototype" />
+        <div class="tile-overlay"><div class="cta-btn">Explore Prototype →</div></div>
+      </div>
+      <div class="tile-body">
+        <div class="tile-meta">
+          <span class="tile-num">05 / 06</span>
+          <span class="tile-accent-dot" style="background:#c45e1a"></span>
+        </div>
+        <div class="tile-name">Common Ground</div>
+        <div class="tile-desc">Bold editorial typography with a Syne typeface. Burnt orange cafe, electric purple bar. A dramatic full-page mode switch with animated SVG branding.</div>
+        <div class="tile-tags">
+          <span class="tag">Editorial</span>
+          <span class="tag">Bold Type</span>
+          <span class="tag">Animated SVG</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 06 Solstice -->
+    <a class="tile" href="solstice.html">
+      <div class="swatch-strip">
+        <span style="background:#0d1b3e"></span>
+        <span style="background:#e8c97a"></span>
+        <span style="background:#1a2a5e"></span>
+        <span style="background:#c8d8f0"></span>
+      </div>
+      <div class="tile-preview">
+        <img src="img/preview_solstice.png" alt="Solstice prototype" />
+        <div class="tile-overlay"><div class="cta-btn">Explore Prototype →</div></div>
+      </div>
+      <div class="tile-body">
+        <div class="tile-meta">
+          <span class="tile-num">06 / 06</span>
+          <span class="tile-accent-dot" style="background:#e8c97a"></span>
+        </div>
+        <div class="tile-name">Solstice</div>
+        <div class="tile-desc">Deep navy cosmos meets golden celestial typography. An atmospheric full-screen hero with an animated sun/moon orb and two distinct entry points.</div>
+        <div class="tile-tags">
+          <span class="tag">Atmospheric</span>
+          <span class="tag">Celestial</span>
+          <span class="tag">Full-Screen Hero</span>
+        </div>
+      </div>
+    </a>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-brand">Crafted by <span>VendhanInfotech</span></div>
+    <div class="footer-sub">All prototypes are fully interactive &middot; Click any tile to explore</div>
+  </footer>
+
+</body>
+</html>
