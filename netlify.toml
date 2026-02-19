@@ -1,5 +1,6 @@
 [build]
-  publish = "Designs"
+  base    = "Designs"
+  publish = "."
 
 [[redirects]]
   from = "/"
