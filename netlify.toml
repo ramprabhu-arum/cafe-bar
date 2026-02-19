@@ -1,0 +1,7 @@
+[build]
+  publish = "Designs"
+
+[[redirects]]
+  from = "/"
+  to   = "/showcase.html"
+  status = 200
